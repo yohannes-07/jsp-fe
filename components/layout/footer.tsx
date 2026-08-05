@@ -5,7 +5,7 @@ import { Logo } from "@/components/layout/logo";
 export function Footer() {
   return (
     <footer className="border-t border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-10 sm:px-8 md:flex-row md:items-end md:justify-between lg:px-10">
+      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 md:grid-cols-2 lg:grid-cols-[1.25fr_0.75fr_0.75fr_0.75fr] lg:px-10">
         <div>
           <Link href="/" aria-label="JSP home">
             <Logo />
@@ -15,16 +15,63 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-4 text-sm text-slate-500 sm:flex-row sm:items-center sm:gap-7">
-          <Link href="#how-it-works" className="transition-colors hover:text-primary">
-            How it works
-          </Link>
-          <Link href="#features" className="transition-colors hover:text-primary">
-            Features
-          </Link>
-          <span>© {new Date().getFullYear()} JSP</span>
+        <FooterLinks
+          title="For job seekers"
+          links={[
+            ["Browse jobs", "/jobs"],
+            ["Job discovery", "/assistants/job-discovery"],
+            ["Resume guidance", "/assistants/resume"],
+            ["Career guidance", "/assistants/career"],
+          ]}
+        />
+        <FooterLinks
+          title="For employers"
+          links={[
+            ["Post a job", "/auth/signup?role=recruiter"],
+            ["Search candidates", "/resumes"],
+            ["Recruiter assistant", "/assistants/recruiter"],
+          ]}
+        />
+        <FooterLinks
+          title="Platform"
+          links={[
+            ["How it works", "/#how-it-works"],
+            ["AI career tools", "/#ai-tools"],
+            ["Support resources", "/assistants/support"],
+            ["Log in", "/auth/login"],
+          ]}
+        />
+      </div>
+      <div className="border-t border-slate-100">
+        <div className="mx-auto max-w-7xl px-5 py-5 text-sm text-slate-500 sm:px-8 lg:px-10">
+          © {new Date().getFullYear()} JSP
         </div>
       </div>
     </footer>
+  );
+}
+
+type FooterLinksProps = {
+  title: string;
+  links: [label: string, href: string][];
+};
+
+function FooterLinks({ title, links }: FooterLinksProps) {
+  return (
+    <div>
+      <h2 className="text-sm font-bold text-slate-900">{title}</h2>
+      <ul className="mt-4 space-y-3">
+        {links.map(([label, href]) => (
+          <li key={label}>
+            <Link
+              href={href}
+              className="text-sm text-slate-500 transition-colors hover:text-primary"
+            >
+              {label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
