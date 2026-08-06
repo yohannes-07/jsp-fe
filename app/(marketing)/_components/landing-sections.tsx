@@ -30,6 +30,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AiQueryInput } from "@/components/search/ai-query-input";
 import { cn } from "@/lib/utils";
 
 const jobSeekerSteps = [
@@ -167,37 +168,10 @@ export function HeroSection() {
             Search naturally, discover better-fit roles, and get personalized AI guidance from first question to next step.
           </p>
 
-          <form
-            action="/jobs"
-            method="get"
-            className="mt-8 rounded-2xl border border-slate-200 bg-white p-2.5 shadow-xl shadow-blue-950/8"
-          >
-            <div className="grid gap-2 md:grid-cols-[1fr_0.72fr_auto]">
-              <label className="flex h-13 items-center gap-3 rounded-xl px-3 focus-within:bg-slate-50">
-                <Search aria-hidden="true" className="size-5 shrink-0 text-blue-600" />
-                <span className="sr-only">Job title, skill, or keyword</span>
-                <input
-                  type="search"
-                  name="q"
-                  placeholder="Job title, skill, or keywords"
-                  className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
-                />
-              </label>
-              <label className="flex h-13 items-center gap-3 rounded-xl border-t border-slate-100 px-3 focus-within:bg-slate-50 md:border-t-0 md:border-l">
-                <MapPin aria-hidden="true" className="size-5 shrink-0 text-blue-600" />
-                <span className="sr-only">Location</span>
-                <input
-                  type="search"
-                  name="location"
-                  placeholder="Location or remote"
-                  className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
-                />
-              </label>
-              <Button type="submit" className="h-13 rounded-xl px-6 text-base">
-                Search jobs
-              </Button>
-            </div>
-          </form>
+          <AiQueryInput
+            className="mt-8"
+            placeholder="Try: Find remote operations roles in Nairobi"
+          />
 
           <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-600">
             {[
