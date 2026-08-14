@@ -19,7 +19,7 @@ import {
 } from "@/lib/validation/auth";
 
 
-export function LoginForm() {
+export function LoginForm({ redirectTo = "/jobs" }: { redirectTo?: string }) {
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export function LoginForm() {
     setSubmitError(null);
     try {
       await login(values.email, values.password);
-      router.replace("/jobs");
+      router.replace(redirectTo);
     } catch (error) {
       setSubmitError(error instanceof ApiError ? error.message : "Unable to sign in");
     }
