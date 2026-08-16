@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, LoaderCircle, Sparkles } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api-client";
@@ -13,11 +13,9 @@ import { cn } from "@/lib/utils";
 export function AiQueryInput({
   className,
   placeholder = "Ask about jobs, your resume, career options, or support...",
-  compact = false,
 }: {
   className?: string;
   placeholder?: string;
-  compact?: boolean;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -53,15 +51,9 @@ export function AiQueryInput({
     <div className={className}>
       <form
         onSubmit={handleSubmit}
-        className={cn(
-          "flex items-center gap-2 border border-slate-200 bg-white p-2 shadow-lg shadow-blue-950/5",
-          compact ? "rounded-xl" : "rounded-2xl",
-        )}
+        className="flex flex-col gap-2 rounded-xl border border-slate-300 bg-white p-2 shadow-sm sm:flex-row sm:items-center"
       >
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700">
-          <Sparkles aria-hidden="true" className="size-4" />
-        </span>
-        <label className="min-w-0 flex-1">
+        <label className="w-full min-w-0 flex-1">
           <span className="sr-only">Ask CirWork</span>
           <input
             value={query}
@@ -73,18 +65,12 @@ export function AiQueryInput({
         <Button
           type="submit"
           disabled={submitting || query.trim().length < 2}
-          className={cn("rounded-xl", compact ? "size-10 px-0" : "h-11 px-5")}
-          aria-label={compact ? "Ask CirWork" : undefined}
+          className="h-11 w-full shrink-0 rounded-lg px-5 sm:w-auto"
         >
           {submitting ? (
             <LoaderCircle aria-hidden="true" className="animate-spin" />
-          ) : compact ? (
-            <ArrowRight aria-hidden="true" />
           ) : (
-            <>
-              Ask CirWork
-              <ArrowRight aria-hidden="true" />
-            </>
+            "Ask CirWork"
           )}
         </Button>
       </form>

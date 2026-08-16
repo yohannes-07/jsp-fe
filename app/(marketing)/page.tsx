@@ -1,27 +1,10 @@
-import {
-  AiShowcase,
-  EmployerSection,
-  FinalCta,
-  HeroSection,
-  HowItWorks,
-  JobSeekerSearchSection,
-  JobsPreview,
-  SupportSection,
-  VisualStorySection,
-} from "./_components/landing-sections";
+import { SimpleHero, SimpleJobSearch } from "./_components/simple-home";
 
 export default function LandingPage() {
   return (
     <>
-      <HeroSection />
-      <JobSeekerSearchSection />
-      <VisualStorySection />
-      <HowItWorks />
-      <AiShowcase />
-      <JobsPreview />
-      <EmployerSection />
-      <SupportSection />
-      <FinalCta />
+      <SimpleHero />
+      <SimpleJobSearch />
     </>
   );
 }

@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, BriefcaseBusiness, UserRound } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -62,7 +61,6 @@ export function LoginForm({ redirectTo = "/jobs" }: { redirectTo?: string }) {
       {submitError && <FormAlert>{submitError}</FormAlert>}
       <Button type="submit" disabled={isSubmitting} className="h-11 w-full rounded-xl">
         {isSubmitting ? "Signing in..." : "Sign in"}
-        {!isSubmitting && <ArrowRight aria-hidden="true" />}
       </Button>
       <p className="text-center text-sm text-slate-500">
         New to CirWork?{" "}
@@ -116,13 +114,11 @@ export function SignupForm({
         <div className="grid grid-cols-2 gap-2">
           <RoleButton
             active={role === "job_seeker"}
-            icon={UserRound}
             label="Find work"
             onClick={() => setValue("role", "job_seeker", { shouldValidate: true })}
           />
           <RoleButton
             active={role === "recruiter"}
-            icon={BriefcaseBusiness}
             label="Hire talent"
             onClick={() => setValue("role", "recruiter", { shouldValidate: true })}
           />
@@ -167,7 +163,6 @@ export function SignupForm({
       {submitError && <FormAlert>{submitError}</FormAlert>}
       <Button type="submit" disabled={isSubmitting} className="h-11 w-full rounded-xl">
         {isSubmitting ? "Creating account..." : "Create account"}
-        {!isSubmitting && <ArrowRight aria-hidden="true" />}
       </Button>
       <p className="text-center text-sm text-slate-500">
         Already have an account?{" "}
@@ -179,16 +174,12 @@ export function SignupForm({
   );
 }
 
-type IconType = typeof UserRound;
-
 function RoleButton({
   active,
-  icon: Icon,
   label,
   onClick,
 }: {
   active: boolean;
-  icon: IconType;
   label: string;
   onClick: () => void;
 }) {
@@ -202,7 +193,6 @@ function RoleButton({
           : "flex h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:border-blue-200"
       }
     >
-      <Icon aria-hidden="true" className="size-4" />
       {label}
     </button>
   );
