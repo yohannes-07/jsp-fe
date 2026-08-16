@@ -5,6 +5,19 @@ import { AiQueryInput } from "@/components/search/ai-query-input";
 import { Button } from "@/components/ui/button";
 
 
+const supportCategories = [
+  "Training",
+  "Housing",
+  "Childcare",
+  "Transportation",
+  "Benefits",
+  "Resume Coaching",
+  "Mental Health",
+  "Health & Wellness",
+  "Personal Development",
+];
+
+
 export function SimpleHero() {
   return (
     <section className="relative isolate overflow-hidden bg-white">
@@ -79,6 +92,39 @@ export function SimpleJobSearch() {
             Search Jobs
           </Button>
         </form>
+      </div>
+    </section>
+  );
+}
+
+export function SimpleSupportSection() {
+  return (
+    <section className="border-t border-slate-200 bg-white py-14 sm:py-18">
+      <div className="mx-auto grid max-w-5xl gap-10 px-5 sm:px-8 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:px-10">
+        <nav
+          aria-label="Support categories"
+          className="grid grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-3"
+        >
+          {supportCategories.map((category) => (
+            <Link
+              key={category}
+              href="/assistants/support"
+              className="border-b border-slate-200 py-3 text-sm font-semibold text-slate-700 transition hover:border-blue-600 hover:text-blue-700"
+            >
+              {category}
+            </Link>
+          ))}
+        </nav>
+
+        <div>
+          <p className="text-sm font-bold text-blue-700">Support Beyond the Application</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-slate-950">
+            Support for life around work
+          </h2>
+          <p className="mt-4 leading-7 text-slate-600">
+            Find practical resources that can make searching for work and moving forward easier.
+          </p>
+        </div>
       </div>
     </section>
   );
