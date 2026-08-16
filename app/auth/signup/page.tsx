@@ -14,7 +14,7 @@ export default async function SignupPage({
   const role = (await searchParams).role === "recruiter" ? "recruiter" : "job_seeker";
   return (
     <AuthPageShell
-      eyebrow="Join JSP"
+      eyebrow="Join CirWork"
       title="Create your account"
       description="Choose your path and start building better connections."
     >

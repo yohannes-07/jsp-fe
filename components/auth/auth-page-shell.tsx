@@ -18,7 +18,7 @@ export function AuthPageShell({
   return (
     <main className="grid min-h-screen bg-slate-50 lg:grid-cols-[0.9fr_1.1fr]">
       <section className="hidden bg-slate-950 p-12 text-white lg:flex lg:flex-col lg:justify-between">
-        <Link href="/" aria-label="JSP home">
+        <Link href="/" aria-label="CirWork home">
           <Logo className="[&_span_span]:text-white" />
         </Link>
         <div className="max-w-lg">
@@ -41,12 +41,12 @@ export function AuthPageShell({
             )}
           </ul>
         </div>
-        <p className="text-sm text-slate-500">JSP · Find work that fits</p>
+        <p className="text-sm text-slate-500">CirWork · Find work that fits</p>
       </section>
 
       <section className="flex items-center justify-center px-5 py-12 sm:px-8">
         <div className="w-full max-w-md">
-          <Link href="/" aria-label="JSP home" className="mb-10 inline-flex lg:hidden">
+          <Link href="/" aria-label="CirWork home" className="mb-10 inline-flex lg:hidden">
             <Logo />
           </Link>
           <p className="text-sm font-bold tracking-[0.14em] text-blue-600 uppercase">

@@ -7,7 +7,7 @@ export function Footer() {
     <footer className="border-t border-slate-200 bg-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 md:grid-cols-2 lg:grid-cols-[1.25fr_0.75fr_0.75fr_0.75fr] lg:px-10">
         <div>
-          <Link href="/" aria-label="JSP home">
+          <Link href="/" aria-label="CirWork home">
             <Logo />
           </Link>
           <p className="mt-4 max-w-sm text-sm leading-6 text-slate-500">
@@ -44,7 +44,7 @@ export function Footer() {
       </div>
       <div className="border-t border-slate-100">
         <div className="mx-auto max-w-7xl px-5 py-5 text-sm text-slate-500 sm:px-8 lg:px-10">
-          © {new Date().getFullYear()} JSP
+          © {new Date().getFullYear()} CirWork
         </div>
       </div>
     </footer>

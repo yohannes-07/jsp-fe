@@ -13,11 +13,13 @@ import {
   FileText,
   GraduationCap,
   HandCoins,
+  HeartPulse,
   House,
   MapPin,
   Search,
   Send,
   Sparkles,
+  TrendingUp,
   UserRoundSearch,
   Users,
 } from "lucide-react";
@@ -128,6 +130,8 @@ const supportCategories = [
   { icon: HandCoins, label: "Benefits", color: "bg-violet-50 text-violet-700" },
   { icon: FileText, label: "Resume coaching", color: "bg-blue-50 text-blue-700" },
   { icon: Brain, label: "Mental health", color: "bg-cyan-50 text-cyan-700" },
+  { icon: HeartPulse, label: "Health & Wellness", color: "bg-rose-50 text-rose-700" },
+  { icon: TrendingUp, label: "Personal Development", color: "bg-emerald-50 text-emerald-700" },
 ];
 
 export function HeroSection() {
@@ -285,6 +289,63 @@ export function HeroSection() {
   );
 }
 
+export function JobSeekerSearchSection() {
+  return (
+    <section id="job-seekers" className="scroll-mt-24 border-b border-slate-200 bg-slate-50 py-14 sm:py-18">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-bold tracking-[0.16em] text-blue-600 uppercase">
+                For job seekers
+              </p>
+              <h2 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-slate-950 sm:text-4xl">
+                Find your next job
+              </h2>
+            </div>
+            <Link href="/auth/signup" className="text-sm font-bold text-blue-700 hover:underline">
+              Create a profile for better matches
+            </Link>
+          </div>
+
+          <form
+            action="/jobs"
+            method="get"
+            className="mt-8 grid gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl shadow-slate-950/8 sm:p-4 lg:grid-cols-[1.25fr_0.85fr_auto]"
+          >
+            <label className="relative block">
+              <span className="sr-only">Job title, keyword, or company</span>
+              <Search aria-hidden="true" className="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-slate-500" />
+              <input
+                type="search"
+                name="q"
+                placeholder="Job title, keyword, or company"
+                className="h-14 w-full rounded-xl border border-slate-300 bg-white pr-4 pl-12 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
+              />
+            </label>
+            <label className="relative block">
+              <span className="sr-only">Location</span>
+              <MapPin aria-hidden="true" className="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-slate-500" />
+              <input
+                type="search"
+                name="location"
+                placeholder="City, region, or remote"
+                className="h-14 w-full rounded-xl border border-slate-300 bg-white pr-4 pl-12 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
+              />
+            </label>
+            <Button type="submit" size="lg" className="h-14 rounded-xl px-7 text-base font-bold">
+              Search Jobs
+            </Button>
+          </form>
+          <p className="mt-4 text-sm text-slate-500">
+            Search by role, skill, company, or location. You can refine results on the jobs page.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function HowItWorks() {
   return (
     <section id="how-it-works" className="scroll-mt-24 bg-slate-50 py-20 sm:py-28">
@@ -303,7 +364,7 @@ export function HowItWorks() {
 
         <div className="mt-14 grid gap-6 lg:grid-cols-2">
           <AudienceTrack
-            id="job-seekers"
+            id="job-seeker-path"
             eyebrow="For job seekers"
             title="Find your next opportunity"
             steps={jobSeekerSteps}
@@ -794,15 +855,12 @@ export function SupportSection() {
           data-asset-replacement="/images/landing/support-services.webp"
           className="order-2 grid grid-cols-2 gap-3 rounded-[2rem] bg-blue-50 p-4 sm:grid-cols-3 sm:p-6 lg:order-1"
         >
-          {supportCategories.map((category, index) => {
+          {supportCategories.map((category) => {
             const Icon = category.icon;
             return (
               <div
                 key={category.label}
-                className={cn(
-                  "rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200/70",
-                  index === supportCategories.length - 1 && "sm:col-start-2",
-                )}
+                className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200/70"
               >
                 <span className={cn("grid size-10 place-items-center rounded-xl", category.color)}>
                   <Icon aria-hidden="true" className="size-5" />

@@ -4,8 +4,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "JSP — Find work that fits",
-    template: "%s | JSP",
+    default: "CirWork — Find work that fits",
+    template: "%s | CirWork",
   },
   description:
     "An AI-native job search platform that helps people discover better-fit roles and move forward with confidence.",

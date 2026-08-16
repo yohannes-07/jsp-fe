@@ -55,8 +55,8 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
         title={user?.role === "recruiter" ? "Jobs" : "Find your next opportunity"}
         description={
           user?.role === "recruiter"
-            ? "Publish roles and see the opportunities currently available on JSP."
-            : "Search open roles or describe what you want to the JSP assistant."
+            ? "Publish roles and see the opportunities currently available on CirWork."
+            : "Search open roles or describe what you want to the CirWork assistant."
         }
         action={
           user?.role === "recruiter" ? (
@@ -71,7 +71,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
       {showCreate && <CreateJobPanel onClose={() => setShowCreate(false)} />}
 
       <AiQueryInput
-        placeholder="Ask JSP to find a role, explain your options, or guide your next step..."
+        placeholder="Ask CirWork to find a role, explain your options, or guide your next step..."
       />
 
       <form
@@ -123,7 +123,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
       {jobsQuery.data?.items.length === 0 && (
         <StatePanel
           title="No roles matched this search"
-          description="Try a broader title, remove a filter, or ask JSP to suggest another direction."
+          description="Try a broader title, remove a filter, or ask CirWork to suggest another direction."
         />
       )}
       {jobsQuery.data && jobsQuery.data.items.length > 0 && (

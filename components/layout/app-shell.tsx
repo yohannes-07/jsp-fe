@@ -68,7 +68,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-slate-50 pb-18 md:pb-0">
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white">
         <div className="mx-auto flex h-17 max-w-[92rem] items-center justify-between px-4 sm:px-6">
-          <Link href="/jobs" aria-label="JSP workspace">
+          <Link href="/jobs" aria-label="CirWork workspace">
             <Logo />
           </Link>
           <div className="flex items-center gap-3">

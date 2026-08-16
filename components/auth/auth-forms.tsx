@@ -65,7 +65,7 @@ export function LoginForm({ redirectTo = "/jobs" }: { redirectTo?: string }) {
         {!isSubmitting && <ArrowRight aria-hidden="true" />}
       </Button>
       <p className="text-center text-sm text-slate-500">
-        New to JSP?{" "}
+        New to CirWork?{" "}
         <Link href="/auth/signup" className="font-semibold text-blue-700 hover:underline">
           Create an account
         </Link>

@@ -53,7 +53,7 @@ export function ProfileClient() {
         description={
           user.role === "recruiter"
             ? "Keep the company details shown with your job listings current."
-            : "Help JSP understand your experience and the opportunities you want."
+            : "Help CirWork understand your experience and the opportunities you want."
         }
       />
       <form

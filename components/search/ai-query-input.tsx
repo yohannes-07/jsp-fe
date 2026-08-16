@@ -62,7 +62,7 @@ export function AiQueryInput({
           <Sparkles aria-hidden="true" className="size-4" />
         </span>
         <label className="min-w-0 flex-1">
-          <span className="sr-only">Ask JSP</span>
+          <span className="sr-only">Ask CirWork</span>
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -74,7 +74,7 @@ export function AiQueryInput({
           type="submit"
           disabled={submitting || query.trim().length < 2}
           className={cn("rounded-xl", compact ? "size-10 px-0" : "h-11 px-5")}
-          aria-label={compact ? "Ask JSP" : undefined}
+          aria-label={compact ? "Ask CirWork" : undefined}
         >
           {submitting ? (
             <LoaderCircle aria-hidden="true" className="animate-spin" />
@@ -82,7 +82,7 @@ export function AiQueryInput({
             <ArrowRight aria-hidden="true" />
           ) : (
             <>
-              Ask JSP
+              Ask CirWork
               <ArrowRight aria-hidden="true" />
             </>
           )}

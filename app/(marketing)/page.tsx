@@ -4,6 +4,7 @@ import {
   FinalCta,
   HeroSection,
   HowItWorks,
+  JobSeekerSearchSection,
   JobsPreview,
   SupportSection,
   VisualStorySection,
@@ -13,6 +14,7 @@ export default function LandingPage() {
   return (
     <>
       <HeroSection />
+      <JobSeekerSearchSection />
       <VisualStorySection />
       <HowItWorks />
       <AiShowcase />
