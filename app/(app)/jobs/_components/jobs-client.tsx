@@ -13,13 +13,25 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
 import { useAuthStore } from "@/lib/store/auth-store";
-import type { Job, JobList, JobType } from "@/lib/types";
+import type { Job, JobList, JobType, WorkNature } from "@/lib/types";
+
+const workNatureOptions: { label: string; value: WorkNature }[] = [
+  { label: "Professional", value: "professional" },
+  { label: "Fractional", value: "fractional" },
+  { label: "Tech", value: "tech" },
+  { label: "Gig economy", value: "gig-economy" },
+  { label: "Blue collar", value: "blue-collar" },
+  { label: "Manual labor", value: "manual-labor" },
+  { label: "Long-term", value: "long-term" },
+  { label: "Short-term", value: "short-term" },
+];
 
 
 type JobFilters = {
   q: string;
   location: string;
   jobType: string;
+  natureOfWork: string;
 };
 
 export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
@@ -32,6 +44,9 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
   if (initialFilters.q) queryString.set("q", initialFilters.q);
   if (initialFilters.location) queryString.set("location", initialFilters.location);
   if (initialFilters.jobType) queryString.set("job_type", initialFilters.jobType);
+  if (initialFilters.natureOfWork) {
+    queryString.set("nature_of_work", initialFilters.natureOfWork);
+  }
 
   const jobsQuery = useQuery({
     queryKey: ["jobs", queryString.toString()],
@@ -45,6 +60,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
     if (filters.q.trim()) params.set("q", filters.q.trim());
     if (filters.location.trim()) params.set("location", filters.location.trim());
     if (filters.jobType) params.set("job_type", filters.jobType);
+    if (filters.natureOfWork) params.set("nature_of_work", filters.natureOfWork);
     router.push("/jobs" + (params.size ? "?" + params : ""));
   };
 
@@ -76,7 +92,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
 
       <form
         onSubmit={applyFilters}
-        className="grid gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 md:grid-cols-[1fr_0.75fr_0.55fr_auto]"
+        className="grid gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 md:grid-cols-2 xl:grid-cols-[1fr_0.75fr_0.55fr_0.65fr_auto]"
       >
         <label className="relative">
           <Search aria-hidden="true" className="absolute top-3.5 left-3 size-4 text-slate-400" />
@@ -107,6 +123,21 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
           <option value="part-time">Part-time</option>
           <option value="contract">Contract</option>
           <option value="remote">Remote</option>
+        </select>
+        <select
+          value={filters.natureOfWork}
+          onChange={(event) =>
+            setFilters({ ...filters, natureOfWork: event.target.value })
+          }
+          className="h-11 rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50"
+          aria-label="Nature of work"
+        >
+          <option value="">All kinds of work</option>
+          {workNatureOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
         <Button type="submit" className="h-11 rounded-xl px-5">
           Search
@@ -177,6 +208,13 @@ function JobCard({ job }: { job: Job }) {
             </span>
             <span className="font-semibold text-slate-700">{salary}</span>
           </div>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {job.nature_of_work.map((nature) => (
+              <span key={nature} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                {workNatureOptions.find((option) => option.value === nature)?.label ?? nature}
+              </span>
+            ))}
+          </div>
           <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-600">
             {job.description}
           </p>
@@ -196,6 +234,7 @@ function CreateJobPanel({ onClose }: { onClose: () => void }) {
     job_type: "full-time" as JobType,
     salary_min: "",
     salary_max: "",
+    nature_of_work: ["professional", "long-term"] as WorkNature[],
   });
   const mutation = useMutation({
     mutationFn: () =>
@@ -269,6 +308,41 @@ function CreateJobPanel({ onClose }: { onClose: () => void }) {
             className="h-11"
           />
         </div>
+        <fieldset className="md:col-span-2">
+          <legend className="text-sm font-semibold text-slate-800">Nature of work</legend>
+          <p className="mt-1 text-xs text-slate-500">Choose every option that describes this opportunity.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {workNatureOptions.map((option) => {
+              const selected = form.nature_of_work.includes(option.value);
+              return (
+                <label
+                  key={option.value}
+                  className={
+                    selected
+                      ? "cursor-pointer rounded-full border border-blue-600 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700"
+                      : "cursor-pointer rounded-full border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:border-blue-300"
+                  }
+                >
+                  <input
+                    type="checkbox"
+                    value={option.value}
+                    checked={selected}
+                    onChange={() =>
+                      setForm({
+                        ...form,
+                        nature_of_work: selected
+                          ? form.nature_of_work.filter((value) => value !== option.value)
+                          : [...form.nature_of_work, option.value],
+                      })
+                    }
+                    className="sr-only"
+                  />
+                  {option.label}
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
         <Textarea
           required
           minLength={20}
@@ -295,7 +369,10 @@ function CreateJobPanel({ onClose }: { onClose: () => void }) {
         <Button type="button" variant="ghost" onClick={onClose}>
           Cancel
         </Button>
-        <Button type="submit" disabled={mutation.isPending}>
+        <Button
+          type="submit"
+          disabled={mutation.isPending || form.nature_of_work.length === 0}
+        >
           {mutation.isPending ? "Publishing..." : "Publish job"}
         </Button>
       </div>

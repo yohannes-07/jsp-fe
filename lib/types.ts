@@ -24,6 +24,15 @@ export type AuthResponse = {
 };
 
 export type JobType = "full-time" | "part-time" | "contract" | "remote";
+export type WorkNature =
+  | "professional"
+  | "fractional"
+  | "tech"
+  | "gig-economy"
+  | "blue-collar"
+  | "manual-labor"
+  | "long-term"
+  | "short-term";
 
 export type Job = {
   id: string;
@@ -33,6 +42,7 @@ export type Job = {
   requirements: string;
   location: string;
   job_type: JobType;
+  nature_of_work: WorkNature[];
   salary_min: number | null;
   salary_max: number | null;
   status: "open" | "closed";
@@ -61,4 +71,18 @@ export type QueryResponse = {
   answer: string;
   redirect_url: string | null;
   assistant: string | null;
+};
+
+export type TalentAction = {
+  id: string;
+  title: string;
+  completed: boolean;
+};
+
+export type TalentWorkspace = {
+  identify_talent: TalentAction[];
+  attract_talent: TalentAction[];
+  support_talent: TalentAction[];
+  retain_talent: TalentAction[];
+  create_value: TalentAction[];
 };

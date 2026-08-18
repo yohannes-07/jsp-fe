@@ -10,6 +10,7 @@ import {
   LogOut,
   MessageCircle,
   Search,
+  Target,
   UserRound,
 } from "lucide-react";
 
@@ -29,6 +30,7 @@ const seekerNav = [
 const recruiterNav = [
   { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness },
   { href: "/resumes", label: "Find candidates", icon: Search },
+  { href: "/talent", label: "Talent strategy", icon: Target },
   { href: "/assistants/recruiter", label: "Recruiter assistant", icon: Compass },
   { href: "/profile", label: "Company profile", icon: UserRound },
 ];

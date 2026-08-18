@@ -5,6 +5,17 @@ import { ArrowLeft, BriefcaseBusiness, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Job } from "@/lib/types";
 
+const workNatureLabels: Record<string, string> = {
+  professional: "Professional",
+  fractional: "Fractional",
+  tech: "Tech",
+  "gig-economy": "Gig economy",
+  "blue-collar": "Blue collar",
+  "manual-labor": "Manual labor",
+  "long-term": "Long-term",
+  "short-term": "Short-term",
+};
+
 
 async function loadJob(id: string): Promise<Job | null> {
   const baseUrl =
@@ -63,6 +74,13 @@ export default async function JobDetailPage({
                 {job.location}
               </span>
               <span className="font-semibold text-slate-800">{salary}</span>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {job.nature_of_work.map((nature) => (
+                <span key={nature} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                  {workNatureLabels[nature] ?? nature}
+                </span>
+              ))}
             </div>
           </div>
           <Button asChild className="h-11 rounded-xl px-6">
