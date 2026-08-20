@@ -1,5 +1,9 @@
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
+  (
+    process.env.API_BASE_URL ??
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    "http://localhost:8000/api/v1"
+  ).replace(/\/$/, "");
 
 const allowedAssistants = new Set([
   "query",
@@ -20,14 +24,22 @@ export async function POST(
   }
 
   const authorization = request.headers.get("authorization");
-  const response = await fetch(`${API_BASE_URL}/chat/${assistant}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(authorization ? { Authorization: authorization } : {}),
-    },
-    body: await request.text(),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/chat/${assistant}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(authorization ? { Authorization: authorization } : {}),
+      },
+      body: await request.text(),
+    });
+  } catch {
+    return Response.json(
+      { detail: "The backend service is unavailable" },
+      { status: 502 },
+    );
+  }
 
   return new Response(response.body, {
     status: response.status,

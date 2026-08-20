@@ -19,15 +19,16 @@ const workNatureLabels: Record<string, string> = {
 
 async function loadJob(id: string): Promise<Job | null> {
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
-  try {
-    const response = await fetch(baseUrl + "/jobs/" + id, { cache: "no-store" });
-    if (response.status === 404) return null;
-    if (!response.ok) throw new Error("Unable to load job");
-    return response.json() as Promise<Job>;
-  } catch {
-    return null;
-  }
+    process.env.API_BASE_URL ??
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    "http://localhost:8000/api/v1";
+  const response = await fetch(
+    baseUrl.replace(/\/$/, "") + "/jobs/" + encodeURIComponent(id),
+    { cache: "no-store" },
+  );
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`Unable to load job (${response.status})`);
+  return response.json() as Promise<Job>;
 }
 
 export default async function JobDetailPage({

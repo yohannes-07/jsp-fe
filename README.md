@@ -6,6 +6,7 @@
 git clone <frontend-repository-url> jsp-fe
 cd jsp-fe
 npm install
+cp .env.local.example .env.local
 ```
 
 ## Run
