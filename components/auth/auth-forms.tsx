@@ -142,11 +142,14 @@ export function SignupForm({
           />
         </FormField>
       )}
-      <FormField label="Email" error={errors.email?.message}>
+      <FormField
+        label={role === "recruiter" ? "Company Email" : "Email"}
+        error={errors.email?.message}
+      >
         <Input
           type="email"
           autoComplete="email"
-          placeholder="you@example.com"
+          placeholder={role === "recruiter" ? "you@company.com" : "you@example.com"}
           className="h-11"
           {...register("email")}
         />

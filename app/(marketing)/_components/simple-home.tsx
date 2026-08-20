@@ -11,8 +11,18 @@ const workNatureOptions = [
   ["Gig economy", "gig-economy"],
   ["Blue collar", "blue-collar"],
   ["Manual labor", "manual-labor"],
+  ["Data Centers", "data-centers"],
   ["Long-term", "long-term"],
   ["Short-term", "short-term"],
+] as const;
+
+const jobSearchTimelines = [
+  ["Urgent", "urgent"],
+  ["Next 6 Months", "next-6-months"],
+  ["Just Browsing", "just-browsing"],
+  ["Imminent Career Change", "imminent-career-change"],
+  ["Medium-term career planning", "medium-term-career-planning"],
+  ["Long-term planning", "long-term-planning"],
 ] as const;
 
 
@@ -53,54 +63,81 @@ export function SimpleJobSearch() {
     >
       <div className="mx-auto max-w-5xl px-5 sm:px-8 lg:px-10">
         <h2 className="text-3xl font-bold tracking-[-0.04em] text-slate-950 sm:text-4xl">
-          Search jobs
+          Search Jobs
         </h2>
-        <p className="mt-3 text-base text-slate-600">Choose the kind of work that fits your life.</p>
-        <nav aria-label="Browse by nature of work" className="mt-5 flex flex-wrap gap-2">
-          {workNatureOptions.map(([label, value]) => (
-            <Link
-              key={value}
-              href={`/jobs?nature_of_work=${value}`}
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
         <form
           action="/jobs"
           method="get"
-          className="mt-7 grid gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 lg:grid-cols-[1.25fr_0.85fr_auto]"
+          className="mt-5 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4"
         >
-          <label className="relative block">
-            <span className="sr-only">Job title, keyword, or company</span>
-            <Search
-              aria-hidden="true"
-              className="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-slate-500"
-            />
-            <input
-              type="search"
-              name="q"
-              placeholder="Job title, keyword, or company"
-              className="h-14 w-full rounded-xl border border-slate-300 bg-white pr-4 pl-12 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
-            />
-          </label>
-          <label className="relative block">
-            <span className="sr-only">Location</span>
-            <MapPin
-              aria-hidden="true"
-              className="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-slate-500"
-            />
-            <input
-              type="search"
-              name="location"
-              placeholder="City, region, or remote"
-              className="h-14 w-full rounded-xl border border-slate-300 bg-white pr-4 pl-12 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
-            />
-          </label>
-          <Button type="submit" size="lg" className="h-14 rounded-xl px-7 text-base font-bold">
-            Search Jobs
-          </Button>
+          <div className="grid gap-3 lg:grid-cols-[1.25fr_0.85fr_auto]">
+            <label className="relative block">
+              <span className="sr-only">Job title, keyword, or company</span>
+              <Search
+                aria-hidden="true"
+                className="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-slate-500"
+              />
+              <input
+                type="search"
+                name="q"
+                placeholder="Job title, keyword, or company"
+                className="h-14 w-full rounded-xl border border-slate-300 bg-white pr-4 pl-12 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
+              />
+            </label>
+            <label className="relative block">
+              <span className="sr-only">Location</span>
+              <MapPin
+                aria-hidden="true"
+                className="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-slate-500"
+              />
+              <input
+                type="search"
+                name="location"
+                placeholder="City, region, or remote"
+                className="h-14 w-full rounded-xl border border-slate-300 bg-white pr-4 pl-12 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
+              />
+            </label>
+            <Button type="submit" size="lg" className="h-14 rounded-xl px-7 text-base font-bold">
+              Search Jobs
+            </Button>
+          </div>
+
+          <fieldset className="mt-6 border-t border-slate-200 pt-5">
+            <legend className="px-1 text-base font-semibold text-slate-800">
+              Choose the kind of work that fits your needs
+            </legend>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {workNatureOptions.map(([label, value]) => (
+                <label key={value} className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="nature_of_work"
+                    value={value}
+                    className="peer sr-only"
+                  />
+                  <span className="inline-flex rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-checked:text-white peer-focus-visible:ring-3 peer-focus-visible:ring-blue-200">
+                    {label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="mt-6 border-t border-slate-200 pt-5">
+            <legend className="px-1 text-base font-semibold text-slate-800">
+              How soon are you looking for work?
+            </legend>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {jobSearchTimelines.map(([label, value]) => (
+                <label key={value} className="cursor-pointer">
+                  <input type="radio" name="timeline" value={value} className="peer sr-only" />
+                  <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-700 peer-focus-visible:ring-3 peer-focus-visible:ring-blue-200">
+                    {label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
         </form>
       </div>
     </section>

@@ -12,6 +12,7 @@ const workNatureLabels: Record<string, string> = {
   "gig-economy": "Gig economy",
   "blue-collar": "Blue collar",
   "manual-labor": "Manual labor",
+  "data-centers": "Data Centers",
   "long-term": "Long-term",
   "short-term": "Short-term",
 };

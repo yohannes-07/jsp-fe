@@ -8,7 +8,7 @@ const supportCategories = [
   "Childcare",
   "Transportation",
   "Benefits",
-  "Resume Coaching",
+  "Resume/CV Coaching",
   "Mental Health",
   "Health & Wellness",
   "Personal Development",

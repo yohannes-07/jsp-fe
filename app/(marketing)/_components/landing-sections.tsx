@@ -128,7 +128,7 @@ const supportCategories = [
   { icon: Baby, label: "Childcare", color: "bg-cyan-50 text-cyan-700" },
   { icon: Bus, label: "Transportation", color: "bg-sky-50 text-sky-700" },
   { icon: HandCoins, label: "Benefits", color: "bg-violet-50 text-violet-700" },
-  { icon: FileText, label: "Resume coaching", color: "bg-blue-50 text-blue-700" },
+  { icon: FileText, label: "Resume/CV Coaching", color: "bg-blue-50 text-blue-700" },
   { icon: Brain, label: "Mental health", color: "bg-cyan-50 text-cyan-700" },
   { icon: HeartPulse, label: "Health & Wellness", color: "bg-rose-50 text-rose-700" },
   { icon: TrendingUp, label: "Personal Development", color: "bg-emerald-50 text-emerald-700" },

@@ -22,9 +22,19 @@ const workNatureOptions: { label: string; value: WorkNature }[] = [
   { label: "Gig economy", value: "gig-economy" },
   { label: "Blue collar", value: "blue-collar" },
   { label: "Manual labor", value: "manual-labor" },
+  { label: "Data Centers", value: "data-centers" },
   { label: "Long-term", value: "long-term" },
   { label: "Short-term", value: "short-term" },
 ];
+
+const timelineOptions = [
+  { label: "Urgent", value: "urgent" },
+  { label: "Next 6 Months", value: "next-6-months" },
+  { label: "Just Browsing", value: "just-browsing" },
+  { label: "Imminent Career Change", value: "imminent-career-change" },
+  { label: "Medium-term career planning", value: "medium-term-career-planning" },
+  { label: "Long-term planning", value: "long-term-planning" },
+] as const;
 
 
 type JobFilters = {
@@ -32,6 +42,7 @@ type JobFilters = {
   location: string;
   jobType: string;
   natureOfWork: string;
+  timeline: string;
 };
 
 export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
@@ -61,6 +72,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
     if (filters.location.trim()) params.set("location", filters.location.trim());
     if (filters.jobType) params.set("job_type", filters.jobType);
     if (filters.natureOfWork) params.set("nature_of_work", filters.natureOfWork);
+    if (filters.timeline) params.set("timeline", filters.timeline);
     router.push("/jobs" + (params.size ? "?" + params : ""));
   };
 
@@ -92,7 +104,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
 
       <form
         onSubmit={applyFilters}
-        className="grid gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 md:grid-cols-2 xl:grid-cols-[1fr_0.75fr_0.55fr_0.65fr_auto]"
+        className="grid gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 md:grid-cols-2 xl:grid-cols-[1fr_0.75fr_0.55fr_0.65fr_0.8fr_auto]"
       >
         <label className="relative">
           <Search aria-hidden="true" className="absolute top-3.5 left-3 size-4 text-slate-400" />
@@ -134,6 +146,19 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
         >
           <option value="">All kinds of work</option>
           {workNatureOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filters.timeline}
+          onChange={(event) => setFilters({ ...filters, timeline: event.target.value })}
+          className="h-11 rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50"
+          aria-label="Job search timeline"
+        >
+          <option value="">Any timeline</option>
+          {timelineOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>

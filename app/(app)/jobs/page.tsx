@@ -13,6 +13,7 @@ export default async function JobsPage({
     location?: string;
     job_type?: string;
     nature_of_work?: string;
+    timeline?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -23,6 +24,7 @@ export default async function JobsPage({
         location: params.location ?? "",
         jobType: params.job_type ?? "",
         natureOfWork: params.nature_of_work ?? "",
+        timeline: params.timeline ?? "",
       }}
     />
   );

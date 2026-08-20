@@ -31,6 +31,7 @@ export type WorkNature =
   | "gig-economy"
   | "blue-collar"
   | "manual-labor"
+  | "data-centers"
   | "long-term"
   | "short-term";
 
