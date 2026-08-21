@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 
 const workNatureOptions = [
   ["Professional", "professional"],
+  ["Students", "students"],
+  ["Seniors", "seniors"],
   ["Fractional", "fractional"],
   ["Tech", "tech"],
   ["Gig economy", "gig-economy"],

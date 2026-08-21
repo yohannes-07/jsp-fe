@@ -26,6 +26,8 @@ export type AuthResponse = {
 export type JobType = "full-time" | "part-time" | "contract" | "remote";
 export type WorkNature =
   | "professional"
+  | "students"
+  | "seniors"
   | "fractional"
   | "tech"
   | "gig-economy"

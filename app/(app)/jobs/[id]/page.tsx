@@ -7,6 +7,8 @@ import type { Job } from "@/lib/types";
 
 const workNatureLabels: Record<string, string> = {
   professional: "Professional",
+  students: "Students",
+  seniors: "Seniors",
   fractional: "Fractional",
   tech: "Tech",
   "gig-economy": "Gig economy",

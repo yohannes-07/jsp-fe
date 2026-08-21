@@ -17,6 +17,8 @@ import type { Job, JobList, JobType, WorkNature } from "@/lib/types";
 
 const workNatureOptions: { label: string; value: WorkNature }[] = [
   { label: "Professional", value: "professional" },
+  { label: "Students", value: "students" },
+  { label: "Seniors", value: "seniors" },
   { label: "Fractional", value: "fractional" },
   { label: "Tech", value: "tech" },
   { label: "Gig economy", value: "gig-economy" },
