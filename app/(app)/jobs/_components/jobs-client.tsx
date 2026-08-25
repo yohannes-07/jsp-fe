@@ -45,6 +45,7 @@ type JobFilters = {
   jobType: string;
   natureOfWork: string;
   timeline: string;
+  page: number;
 };
 
 export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
@@ -60,11 +61,12 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
   if (initialFilters.natureOfWork) {
     queryString.set("nature_of_work", initialFilters.natureOfWork);
   }
+  queryString.set("page", String(initialFilters.page));
 
   const jobsQuery = useQuery({
     queryKey: ["jobs", queryString.toString()],
     queryFn: () =>
-      apiRequest<JobList>("/jobs" + (queryString.size ? "?" + queryString : "")),
+      apiRequest<JobList>("/search/jobs" + (queryString.size ? "?" + queryString : "")),
   });
 
   const applyFilters = (event: React.FormEvent) => {
@@ -75,6 +77,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
     if (filters.jobType) params.set("job_type", filters.jobType);
     if (filters.natureOfWork) params.set("nature_of_work", filters.natureOfWork);
     if (filters.timeline) params.set("timeline", filters.timeline);
+    params.set("page", "1");
     router.push("/jobs" + (params.size ? "?" + params : ""));
   };
 
@@ -193,6 +196,34 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
             {jobsQuery.data.items.map((job) => (
               <JobCard key={job.id} job={job} />
             ))}
+          </div>
+          <div className="mt-6 flex items-center justify-between">
+            <Button
+              variant="outline"
+              disabled={!jobsQuery.data.has_previous}
+              onClick={() => {
+                const params = new URLSearchParams(queryString);
+                params.set("page", String(initialFilters.page - 1));
+                router.push("/jobs?" + params);
+              }}
+            >
+              Previous
+            </Button>
+            <span className="text-sm text-slate-500">
+              Page {jobsQuery.data.page} of {Math.max(jobsQuery.data.total_pages, 1)}
+              {jobsQuery.data.semantic_available ? " · Hybrid ranking" : " · Keyword ranking"}
+            </span>
+            <Button
+              variant="outline"
+              disabled={!jobsQuery.data.has_next}
+              onClick={() => {
+                const params = new URLSearchParams(queryString);
+                params.set("page", String(initialFilters.page + 1));
+                router.push("/jobs?" + params);
+              }}
+            >
+              Next
+            </Button>
           </div>
         </div>
       )}

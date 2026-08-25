@@ -67,6 +67,39 @@ export type JobList = {
   total_pages: number;
   has_next: boolean;
   has_previous: boolean;
+  semantic_available?: boolean;
+};
+
+export type Resume = {
+  id: string;
+  file_name: string;
+  content_type: string;
+  skills: string[];
+  experience_level: ExperienceLevel | null;
+  is_primary: boolean;
+  recruiter_visible: boolean;
+  indexing_status: "pending" | "indexed";
+  created_at: string;
+  updated_at: string;
+};
+
+export type Candidate = {
+  id: string;
+  user_id: string;
+  full_name: string;
+  location: string | null;
+  skills: string[];
+  experience_level: ExperienceLevel | null;
+  score: number;
+  indexing_status: "pending" | "indexed";
+};
+
+export type CandidateList = {
+  items: Candidate[];
+  total: number;
+  page: number;
+  page_size: number;
+  semantic_available: boolean;
 };
 
 export type QueryResponse = {

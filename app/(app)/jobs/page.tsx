@@ -14,6 +14,7 @@ export default async function JobsPage({
     job_type?: string;
     nature_of_work?: string;
     timeline?: string;
+    page?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -25,6 +26,7 @@ export default async function JobsPage({
         jobType: params.job_type ?? "",
         natureOfWork: params.nature_of_work ?? "",
         timeline: params.timeline ?? "",
+        page: Math.max(Number(params.page) || 1, 1),
       }}
     />
   );

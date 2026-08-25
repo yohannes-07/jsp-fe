@@ -110,17 +110,15 @@ export function SimpleJobSearch() {
             </legend>
             <div className="mt-3 flex flex-wrap gap-2">
               {workNatureOptions.map(([label, value]) => (
-                <label key={value} className="cursor-pointer">
-                  <input
-                    type="radio"
-                    name="nature_of_work"
-                    value={value}
-                    className="peer sr-only"
-                  />
-                  <span className="inline-flex rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-checked:text-white peer-focus-visible:ring-3 peer-focus-visible:ring-blue-200">
-                    {label}
-                  </span>
-                </label>
+                <button
+                  key={value}
+                  type="submit"
+                  name="nature_of_work"
+                  value={value}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus-visible:ring-3 focus-visible:ring-blue-200 focus-visible:outline-none"
+                >
+                  {label}
+                </button>
               ))}
             </div>
           </fieldset>
