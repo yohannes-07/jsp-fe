@@ -7,7 +7,7 @@ import { FileText, Search, Upload } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { apiRequest } from "@/lib/api-client";
+import { ApiError, apiRequest } from "@/lib/api-client";
 import { useAuthStore } from "@/lib/store/auth-store";
 import type { CandidateList, Resume } from "@/lib/types";
 
@@ -30,7 +30,7 @@ function CandidateSearch() {
       <PageHeader
         eyebrow="Candidate discovery"
         title="Find candidates"
-        description="Search recruiter-visible experience and skills using keyword and semantic ranking."
+        description="Search candidates by their skills and experience."
       />
       <form
         className="flex gap-2 rounded-2xl bg-white p-4 ring-1 ring-slate-200"
@@ -44,8 +44,11 @@ function CandidateSearch() {
       </form>
       {candidates.data && (
         <p className="text-sm text-slate-500">
-          {candidates.data.total} candidates · {candidates.data.semantic_available ? "Hybrid ranking" : "Keyword fallback"}
+          {candidates.data.total} {candidates.data.total === 1 ? "candidate" : "candidates"}
         </p>
+      )}
+      {candidates.isError && (
+        <EmptyState text="We couldn't find candidates right now. Please try again in a moment." />
       )}
       <div className="grid gap-4 md:grid-cols-2">
         {candidates.data?.items.map((candidate) => (
@@ -57,7 +60,7 @@ function CandidateSearch() {
                 <span key={skill} className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">{skill}</span>
               ))}
             </div>
-            <p className="mt-4 text-xs text-slate-400">{candidate.experience_level ?? "Unspecified"} · {candidate.indexing_status}</p>
+            <p className="mt-4 text-xs text-slate-400">{candidate.experience_level ?? "Experience not specified"}</p>
           </article>
         ))}
       </div>
@@ -96,14 +99,21 @@ function ResumeWorkspace() {
           }}
         />
       </label>
-      {upload.isError && <p className="rounded-xl bg-red-50 p-4 text-sm text-red-700">The resume could not be uploaded.</p>}
+      {upload.isError && (
+        <p className="rounded-xl bg-red-50 p-4 text-sm text-red-700">
+          {resumeUploadError(upload.error)}
+        </p>
+      )}
+      {resumes.isError && (
+        <EmptyState text="We couldn't load your resumes right now. Please try again in a moment." />
+      )}
       <div className="space-y-3">
         {resumes.data?.map((resume) => (
           <article key={resume.id} className="flex items-center gap-4 rounded-2xl bg-white p-5 ring-1 ring-slate-200">
             <FileText className="text-blue-700" aria-hidden="true" />
             <div className="min-w-0 flex-1">
               <h2 className="truncate font-semibold text-slate-950">{resume.file_name}</h2>
-              <p className="text-xs text-slate-500">{resume.is_primary ? "Primary · " : ""}{resume.indexing_status}</p>
+              {resume.is_primary && <p className="text-xs text-slate-500">Primary resume</p>}
             </div>
           </article>
         ))}
@@ -115,4 +125,23 @@ function ResumeWorkspace() {
 
 function EmptyState({ text }: { text: string }) {
   return <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-sm text-slate-500">{text}</div>;
+}
+
+function resumeUploadError(error: Error): string {
+  if (!(error instanceof ApiError)) {
+    return "We couldn't upload your resume. Please try again.";
+  }
+  if (error.status === 401) {
+    return "Your session has expired. Please sign in and upload your resume again.";
+  }
+  if (error.status === 413) {
+    return "This resume is too large. Choose a file smaller than 10 MB.";
+  }
+  if (error.status === 415) {
+    return "Choose a PDF, DOCX, or text file.";
+  }
+  if (error.status === 422) {
+    return error.message;
+  }
+  return "We couldn't upload your resume. Please try again.";
 }

@@ -36,7 +36,7 @@ export async function POST(
     });
   } catch {
     return Response.json(
-      { detail: "The backend service is unavailable" },
+      { detail: "The assistant is unavailable right now. Please try again." },
       { status: 502 },
     );
   }

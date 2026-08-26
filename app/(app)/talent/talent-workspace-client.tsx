@@ -96,8 +96,8 @@ export function TalentWorkspaceClient() {
   if (workspaceQuery.isError) {
     return (
       <div className="rounded-2xl bg-white p-8 text-center ring-1 ring-slate-200">
-        <h1 className="text-xl font-bold text-slate-950">Talent workspace unavailable</h1>
-        <p className="mt-2 text-sm text-slate-600">This workspace is available to recruiter accounts.</p>
+        <h1 className="text-xl font-bold text-slate-950">We couldn&apos;t open your talent workspace</h1>
+        <p className="mt-2 text-sm text-slate-600">Please try again in a moment.</p>
       </div>
     );
   }

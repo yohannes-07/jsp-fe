@@ -177,8 +177,8 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
       {jobsQuery.isLoading && <JobLoadingGrid />}
       {jobsQuery.isError && (
         <StatePanel
-          title="Jobs could not be loaded"
-          description="Make sure the backend and PostgreSQL are running, then try again."
+          title="We couldn't find any jobs right now"
+          description="Please try again in a moment."
         />
       )}
       {jobsQuery.data?.items.length === 0 && (
@@ -211,7 +211,6 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
             </Button>
             <span className="text-sm text-slate-500">
               Page {jobsQuery.data.page} of {Math.max(jobsQuery.data.total_pages, 1)}
-              {jobsQuery.data.semantic_available ? " · Hybrid ranking" : " · Keyword ranking"}
             </span>
             <Button
               variant="outline"

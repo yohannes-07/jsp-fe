@@ -34,7 +34,13 @@ export function LoginForm({ redirectTo = "/jobs" }: { redirectTo?: string }) {
       await login(values.email, values.password);
       router.replace(redirectTo);
     } catch (error) {
-      setSubmitError(error instanceof ApiError ? error.message : "Unable to sign in");
+      if (error instanceof ApiError && error.status === 401) {
+        setSubmitError("Incorrect email or password.");
+      } else if (error instanceof ApiError && error.status === 403) {
+        setSubmitError("Your account is currently unavailable.");
+      } else {
+        setSubmitError("We couldn't sign you in. Please try again.");
+      }
     }
   });
 
@@ -101,7 +107,13 @@ export function SignupForm({
       });
       router.replace(values.role === "recruiter" ? "/jobs" : "/profile");
     } catch (error) {
-      setSubmitError(error instanceof ApiError ? error.message : "Unable to create account");
+      if (error instanceof ApiError && error.status === 409) {
+        setSubmitError("An account with this email already exists.");
+      } else if (error instanceof ApiError && error.status === 422) {
+        setSubmitError("Please check your details and try again.");
+      } else {
+        setSubmitError("We couldn't create your account. Please try again.");
+      }
     }
   });
 
