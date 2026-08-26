@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BriefcaseBusiness, LogIn, Menu, Search, UserPlus } from "lucide-react";
+import { BriefcaseBusiness, Menu, Search } from "lucide-react";
 
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
@@ -53,13 +53,11 @@ export function Navbar() {
             className="hidden h-11 rounded-xl border-slate-300 px-4 text-base font-bold text-slate-700 lg:inline-flex"
           >
             <Link href="/auth/login">
-              <LogIn aria-hidden="true" />
               Log in
             </Link>
           </Button>
           <Button asChild className="hidden h-11 rounded-xl px-5 text-base font-bold sm:inline-flex">
             <Link href="/auth/signup">
-              <UserPlus aria-hidden="true" />
               Sign up
             </Link>
           </Button>
