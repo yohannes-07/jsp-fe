@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileText, Search, Upload } from "lucide-react";
+import { FileText, Search, Trash2, Upload } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -72,6 +72,7 @@ function CandidateSearch() {
 function ResumeWorkspace() {
   const queryClient = useQueryClient();
   const resumes = useQuery({ queryKey: ["resumes"], queryFn: () => apiRequest<Resume[]>("/resumes") });
+  const resume = resumes.data?.[0];
   const upload = useMutation({
     mutationFn: (file: File) => {
       const body = new FormData();
@@ -80,13 +81,18 @@ function ResumeWorkspace() {
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["resumes"] }),
   });
+  const remove = useMutation({
+    mutationFn: (resumeId: string) =>
+      apiRequest<void>(`/resumes/${resumeId}`, { method: "DELETE" }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["resumes"] }),
+  });
 
   return (
     <div className="space-y-8">
-      <PageHeader eyebrow="Your experience" title="Your resumes" description="Upload PDF, DOCX, or text resumes for matching and candidate discovery." />
+      <PageHeader eyebrow="Your experience" title="Your resume" description="Keep one current PDF, DOCX, or text resume for job matching and candidate discovery." />
       <label className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-8 text-sm font-semibold text-blue-700">
         <Upload aria-hidden="true" />
-        {upload.isPending ? "Uploading..." : "Upload resume"}
+        {upload.isPending ? "Saving..." : resume ? "Replace resume" : "Upload resume"}
         <input
           type="file"
           accept=".pdf,.docx,.txt"
@@ -105,20 +111,39 @@ function ResumeWorkspace() {
         </p>
       )}
       {resumes.isError && (
-        <EmptyState text="We couldn't load your resumes right now. Please try again in a moment." />
+        <EmptyState text="We couldn't load your resume right now. Please try again in a moment." />
       )}
-      <div className="space-y-3">
-        {resumes.data?.map((resume) => (
-          <article key={resume.id} className="flex items-center gap-4 rounded-2xl bg-white p-5 ring-1 ring-slate-200">
-            <FileText className="text-blue-700" aria-hidden="true" />
-            <div className="min-w-0 flex-1">
-              <h2 className="truncate font-semibold text-slate-950">{resume.file_name}</h2>
-              {resume.is_primary && <p className="text-xs text-slate-500">Primary resume</p>}
-            </div>
-          </article>
-        ))}
-      </div>
-      {resumes.data?.length === 0 && <EmptyState text="Upload your first resume to start matching." />}
+      {remove.isError && (
+        <p className="rounded-xl bg-red-50 p-4 text-sm text-red-700">
+          We couldn&apos;t delete your resume. Please try again.
+        </p>
+      )}
+      {resume && (
+        <article className="flex items-center gap-4 rounded-2xl bg-white p-5 ring-1 ring-slate-200">
+          <FileText className="text-blue-700" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate font-semibold text-slate-950">{resume.file_name}</h2>
+            <p className="text-xs text-slate-500">
+              {resume.indexing_status === "indexed" ? "Ready for matching" : "Preparing for matching..."}
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={remove.isPending}
+            onClick={() => {
+              if (window.confirm("Delete your resume? This cannot be undone.")) {
+                remove.mutate(resume.id);
+              }
+            }}
+            aria-label="Delete resume"
+          >
+            <Trash2 aria-hidden="true" />
+            {remove.isPending ? "Deleting..." : "Delete"}
+          </Button>
+        </article>
+      )}
+      {resumes.data?.length === 0 && <EmptyState text="Upload your resume to start matching." />}
     </div>
   );
 }

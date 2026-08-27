@@ -74,7 +74,6 @@ export type Resume = {
   content_type: string;
   skills: string[];
   experience_level: ExperienceLevel | null;
-  is_primary: boolean;
   recruiter_visible: boolean;
   indexing_status: "pending" | "indexed";
   created_at: string;
