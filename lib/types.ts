@@ -23,29 +23,27 @@ export type AuthResponse = {
   user: User;
 };
 
-export type JobType = "full-time" | "part-time" | "contract" | "remote";
-export type WorkNature =
-  | "professional"
-  | "students"
-  | "seniors"
-  | "fractional"
-  | "tech"
-  | "gig-economy"
-  | "blue-collar"
-  | "manual-labor"
-  | "data-centers"
-  | "long-term"
-  | "short-term";
+export type JobType =
+  | "full-time"
+  | "part-time"
+  | "contract"
+  | "internship"
+  | "freelance"
+  | "fractional";
+export type WorkplaceType = "on-site" | "hybrid" | "remote";
+export type JobExperienceLevel = "entry" | "mid" | "senior" | "lead" | "executive";
 
 export type Job = {
   id: string;
   recruiter_id: string;
   title: string;
+  skills: string[];
   description: string;
   requirements: string;
   location: string;
   job_type: JobType;
-  nature_of_work: WorkNature[];
+  workplace_type: WorkplaceType;
+  experience_levels: JobExperienceLevel[];
   salary_min: number | null;
   salary_max: number | null;
   status: "open" | "closed";

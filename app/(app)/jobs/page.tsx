@@ -12,8 +12,9 @@ export default async function JobsPage({
     q?: string;
     location?: string;
     job_type?: string;
-    nature_of_work?: string;
-    timeline?: string;
+    workplace_type?: string;
+    experience_level?: string;
+    mode?: string;
     page?: string;
   }>;
 }) {
@@ -24,8 +25,9 @@ export default async function JobsPage({
         q: params.q ?? "",
         location: params.location ?? "",
         jobType: params.job_type ?? "",
-        natureOfWork: params.nature_of_work ?? "",
-        timeline: params.timeline ?? "",
+        workplaceType: params.workplace_type ?? "",
+        experienceLevel: params.experience_level ?? "",
+        searchMode: params.mode === "hybrid" ? "hybrid" : "keyword",
         page: Math.max(Number(params.page) || 1, 1),
       }}
     />

@@ -4,30 +4,6 @@ import { ArrowRight, CheckCircle2, MapPin, Search, UsersRound } from "lucide-rea
 import { AiQueryInput } from "@/components/search/ai-query-input";
 import { Button } from "@/components/ui/button";
 
-const workNatureOptions = [
-  ["Professional", "professional"],
-  ["Students", "students"],
-  ["Seniors", "seniors"],
-  ["Fractional", "fractional"],
-  ["Tech", "tech"],
-  ["Gig economy", "gig-economy"],
-  ["Blue collar", "blue-collar"],
-  ["Manual labor", "manual-labor"],
-  ["Data Centers", "data-centers"],
-  ["Long-term", "long-term"],
-  ["Short-term", "short-term"],
-] as const;
-
-const jobSearchTimelines = [
-  ["Urgent", "urgent"],
-  ["Next 6 Months", "next-6-months"],
-  ["Just Browsing", "just-browsing"],
-  ["Imminent Career Change", "imminent-career-change"],
-  ["Medium-term career planning", "medium-term-career-planning"],
-  ["Long-term planning", "long-term-planning"],
-] as const;
-
-
 export function SimpleHero() {
   return (
     <section className="relative isolate overflow-hidden bg-white">
@@ -104,40 +80,32 @@ export function SimpleJobSearch() {
             </Button>
           </div>
 
-          <fieldset className="mt-6 border-t border-slate-200 pt-5">
-            <legend className="px-1 text-base font-semibold text-slate-800">
-              Choose the kind of work that fits your needs
-            </legend>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {workNatureOptions.map(([label, value]) => (
-                <button
-                  key={value}
-                  type="submit"
-                  name="nature_of_work"
-                  value={value}
-                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus-visible:ring-3 focus-visible:ring-blue-200 focus-visible:outline-none"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </fieldset>
+          <div className="mt-4 grid gap-3 border-t border-slate-200 pt-4 md:grid-cols-3">
+            <select name="job_type" aria-label="Job type" className="h-12 rounded-xl border border-slate-300 bg-white px-4 pr-10 text-sm text-slate-700">
+              <option value="">All job types</option>
+              <option value="full-time">Full-time</option>
+              <option value="part-time">Part-time</option>
+              <option value="contract">Contract</option>
+              <option value="internship">Internship</option>
+              <option value="freelance">Freelance</option>
+              <option value="fractional">Fractional</option>
+            </select>
+            <select name="workplace_type" aria-label="Workplace" className="h-12 rounded-xl border border-slate-300 bg-white px-4 pr-10 text-sm text-slate-700">
+              <option value="">Any workplace</option>
+              <option value="on-site">On-site</option>
+              <option value="hybrid">Hybrid</option>
+              <option value="remote">Remote</option>
+            </select>
+            <select name="experience_level" aria-label="Experience level" className="h-12 rounded-xl border border-slate-300 bg-white px-4 pr-10 text-sm text-slate-700">
+              <option value="">Any experience</option>
+              <option value="entry">Entry level</option>
+              <option value="mid">Mid level</option>
+              <option value="senior">Senior level</option>
+              <option value="lead">Lead</option>
+              <option value="executive">Executive</option>
+            </select>
+          </div>
 
-          <fieldset className="mt-6 border-t border-slate-200 pt-5">
-            <legend className="px-1 text-base font-semibold text-slate-800">
-              How soon are you looking for work?
-            </legend>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {jobSearchTimelines.map(([label, value]) => (
-                <label key={value} className="cursor-pointer">
-                  <input type="radio" name="timeline" value={value} className="peer sr-only" />
-                  <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-700 peer-focus-visible:ring-3 peer-focus-visible:ring-blue-200">
-                    {label}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
         </form>
       </div>
     </section>

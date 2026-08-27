@@ -13,38 +13,44 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
 import { useAuthStore } from "@/lib/store/auth-store";
-import type { Job, JobList, JobType, WorkNature } from "@/lib/types";
+import type {
+  Job,
+  JobExperienceLevel,
+  JobList,
+  JobType,
+  WorkplaceType,
+} from "@/lib/types";
 
-const workNatureOptions: { label: string; value: WorkNature }[] = [
-  { label: "Professional", value: "professional" },
-  { label: "Students", value: "students" },
-  { label: "Seniors", value: "seniors" },
+const jobTypeOptions: { label: string; value: JobType }[] = [
+  { label: "Full-time", value: "full-time" },
+  { label: "Part-time", value: "part-time" },
+  { label: "Contract", value: "contract" },
+  { label: "Internship", value: "internship" },
+  { label: "Freelance", value: "freelance" },
   { label: "Fractional", value: "fractional" },
-  { label: "Tech", value: "tech" },
-  { label: "Gig economy", value: "gig-economy" },
-  { label: "Blue collar", value: "blue-collar" },
-  { label: "Manual labor", value: "manual-labor" },
-  { label: "Data Centers", value: "data-centers" },
-  { label: "Long-term", value: "long-term" },
-  { label: "Short-term", value: "short-term" },
 ];
 
-const timelineOptions = [
-  { label: "Urgent", value: "urgent" },
-  { label: "Next 6 Months", value: "next-6-months" },
-  { label: "Just Browsing", value: "just-browsing" },
-  { label: "Imminent Career Change", value: "imminent-career-change" },
-  { label: "Medium-term career planning", value: "medium-term-career-planning" },
-  { label: "Long-term planning", value: "long-term-planning" },
-] as const;
+const workplaceOptions: { label: string; value: WorkplaceType }[] = [
+  { label: "On-site", value: "on-site" },
+  { label: "Hybrid", value: "hybrid" },
+  { label: "Remote", value: "remote" },
+];
 
+const experienceLevelOptions: { label: string; value: JobExperienceLevel }[] = [
+  { label: "Entry level", value: "entry" },
+  { label: "Mid level", value: "mid" },
+  { label: "Senior level", value: "senior" },
+  { label: "Lead", value: "lead" },
+  { label: "Executive", value: "executive" },
+];
 
 type JobFilters = {
   q: string;
   location: string;
   jobType: string;
-  natureOfWork: string;
-  timeline: string;
+  workplaceType: string;
+  experienceLevel: string;
+  searchMode: "keyword" | "hybrid";
   page: number;
 };
 
@@ -58,9 +64,9 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
   if (initialFilters.q) queryString.set("q", initialFilters.q);
   if (initialFilters.location) queryString.set("location", initialFilters.location);
   if (initialFilters.jobType) queryString.set("job_type", initialFilters.jobType);
-  if (initialFilters.natureOfWork) {
-    queryString.set("nature_of_work", initialFilters.natureOfWork);
-  }
+  if (initialFilters.workplaceType) queryString.set("workplace_type", initialFilters.workplaceType);
+  if (initialFilters.experienceLevel) queryString.set("experience_level", initialFilters.experienceLevel);
+  if (initialFilters.searchMode === "hybrid") queryString.set("mode", "hybrid");
   queryString.set("page", String(initialFilters.page));
 
   const jobsQuery = useQuery({
@@ -75,8 +81,8 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
     if (filters.q.trim()) params.set("q", filters.q.trim());
     if (filters.location.trim()) params.set("location", filters.location.trim());
     if (filters.jobType) params.set("job_type", filters.jobType);
-    if (filters.natureOfWork) params.set("nature_of_work", filters.natureOfWork);
-    if (filters.timeline) params.set("timeline", filters.timeline);
+    if (filters.workplaceType) params.set("workplace_type", filters.workplaceType);
+    if (filters.experienceLevel) params.set("experience_level", filters.experienceLevel);
     params.set("page", "1");
     router.push("/jobs" + (params.size ? "?" + params : ""));
   };
@@ -109,7 +115,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
 
       <form
         onSubmit={applyFilters}
-        className="grid gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 md:grid-cols-2 xl:grid-cols-[1fr_0.75fr_0.55fr_0.65fr_0.8fr_auto]"
+        className="grid gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 md:grid-cols-2 xl:grid-cols-[1fr_0.75fr_0.55fr_0.55fr_0.55fr_auto]"
       >
         <label className="relative">
           <Search aria-hidden="true" className="absolute top-3.5 left-3 size-4 text-slate-400" />
@@ -136,34 +142,31 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
           aria-label="Job type"
         >
           <option value="">All job types</option>
-          <option value="full-time">Full-time</option>
-          <option value="part-time">Part-time</option>
-          <option value="contract">Contract</option>
-          <option value="remote">Remote</option>
+          {jobTypeOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
         </select>
         <select
-          value={filters.natureOfWork}
-          onChange={(event) =>
-            setFilters({ ...filters, natureOfWork: event.target.value })
-          }
+          value={filters.workplaceType}
+          onChange={(event) => setFilters({ ...filters, workplaceType: event.target.value })}
           className="h-11 rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50"
-          aria-label="Nature of work"
+          aria-label="Workplace"
         >
-          <option value="">All kinds of work</option>
-          {workNatureOptions.map((option) => (
+          <option value="">Any workplace</option>
+          {workplaceOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}
         </select>
         <select
-          value={filters.timeline}
-          onChange={(event) => setFilters({ ...filters, timeline: event.target.value })}
+          value={filters.experienceLevel}
+          onChange={(event) => setFilters({ ...filters, experienceLevel: event.target.value })}
           className="h-11 rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50"
-          aria-label="Job search timeline"
+          aria-label="Experience level"
         >
-          <option value="">Any timeline</option>
-          {timelineOptions.map((option) => (
+          <option value="">Any experience</option>
+          {experienceLevelOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -266,9 +269,12 @@ function JobCard({ job }: { job: Job }) {
             <span className="font-semibold text-slate-700">{salary}</span>
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {job.nature_of_work.map((nature) => (
-              <span key={nature} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
-                {workNatureOptions.find((option) => option.value === nature)?.label ?? nature}
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+              {workplaceOptions.find((option) => option.value === job.workplace_type)?.label}
+            </span>
+            {job.experience_levels.map((level) => (
+              <span key={level} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                {experienceLevelOptions.find((option) => option.value === level)?.label ?? level}
               </span>
             ))}
           </div>
@@ -285,13 +291,15 @@ function CreateJobPanel({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
     title: "",
+    skills: "",
     description: "",
     requirements: "",
     location: "",
     job_type: "full-time" as JobType,
+    workplace_type: "on-site" as WorkplaceType,
     salary_min: "",
     salary_max: "",
-    nature_of_work: ["professional", "long-term"] as WorkNature[],
+    experience_levels: ["entry", "mid"] as JobExperienceLevel[],
   });
   const mutation = useMutation({
     mutationFn: () =>
@@ -299,6 +307,7 @@ function CreateJobPanel({ onClose }: { onClose: () => void }) {
         method: "POST",
         body: JSON.stringify({
           ...form,
+          skills: form.skills.split(",").map((skill) => skill.trim()).filter(Boolean),
           salary_min: form.salary_min ? Number(form.salary_min) : null,
           salary_max: form.salary_max ? Number(form.salary_max) : null,
         }),
@@ -342,11 +351,27 @@ function CreateJobPanel({ onClose }: { onClose: () => void }) {
           onChange={(event) => setForm({ ...form, job_type: event.target.value as JobType })}
           className="h-11 rounded-md border border-input bg-white px-3 text-sm"
         >
-          <option value="full-time">Full-time</option>
-          <option value="part-time">Part-time</option>
-          <option value="contract">Contract</option>
-          <option value="remote">Remote</option>
+          {jobTypeOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
         </select>
+        <select
+          value={form.workplace_type}
+          onChange={(event) => setForm({ ...form, workplace_type: event.target.value as WorkplaceType })}
+          className="h-11 rounded-md border border-input bg-white px-3 text-sm"
+          aria-label="Workplace"
+        >
+          {workplaceOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+        <Input
+          required
+          value={form.skills}
+          onChange={(event) => setForm({ ...form, skills: event.target.value })}
+          placeholder="Skills (comma separated)"
+          className="h-11"
+        />
         <div className="grid grid-cols-2 gap-3">
           <Input
             type="number"
@@ -366,11 +391,11 @@ function CreateJobPanel({ onClose }: { onClose: () => void }) {
           />
         </div>
         <fieldset className="md:col-span-2">
-          <legend className="text-sm font-semibold text-slate-800">Nature of work</legend>
-          <p className="mt-1 text-xs text-slate-500">Choose every option that describes this opportunity.</p>
+          <legend className="text-sm font-semibold text-slate-800">Experience levels</legend>
+          <p className="mt-1 text-xs text-slate-500">Choose every experience level eligible for this opportunity.</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            {workNatureOptions.map((option) => {
-              const selected = form.nature_of_work.includes(option.value);
+            {experienceLevelOptions.map((option) => {
+              const selected = form.experience_levels.includes(option.value);
               return (
                 <label
                   key={option.value}
@@ -387,9 +412,9 @@ function CreateJobPanel({ onClose }: { onClose: () => void }) {
                     onChange={() =>
                       setForm({
                         ...form,
-                        nature_of_work: selected
-                          ? form.nature_of_work.filter((value) => value !== option.value)
-                          : [...form.nature_of_work, option.value],
+                        experience_levels: selected
+                          ? form.experience_levels.filter((value) => value !== option.value)
+                          : [...form.experience_levels, option.value],
                       })
                     }
                     className="sr-only"
@@ -428,7 +453,7 @@ function CreateJobPanel({ onClose }: { onClose: () => void }) {
         </Button>
         <Button
           type="submit"
-          disabled={mutation.isPending || form.nature_of_work.length === 0}
+          disabled={mutation.isPending || form.experience_levels.length === 0 || !form.skills.trim()}
         >
           {mutation.isPending ? "Publishing..." : "Publish job"}
         </Button>

@@ -9,6 +9,14 @@ import { apiRequest } from "@/lib/api-client";
 import type { QueryResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+const timelineOptions = [
+  ["Urgent", "urgent"],
+  ["Next 6 months", "next-6-months"],
+  ["Just browsing", "just-browsing"],
+  ["Imminent career change", "imminent-career-change"],
+  ["Medium-term planning", "medium-term-career-planning"],
+  ["Long-term planning", "long-term-planning"],
+] as const;
 
 export function AiQueryInput({
   className,
@@ -19,6 +27,7 @@ export function AiQueryInput({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [timeline, setTimeline] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -33,10 +42,18 @@ export function AiQueryInput({
     try {
       const response = await apiRequest<QueryResponse>("/chat/query", {
         method: "POST",
-        body: JSON.stringify({ query: value }),
+        body: JSON.stringify({ query: value, timeline: timeline || null }),
       });
       if (response.redirect_url) {
-        router.push(response.redirect_url);
+        if (response.intent === "job_search") {
+          const [path, rawQuery = ""] = response.redirect_url.split("?");
+          const params = new URLSearchParams(rawQuery);
+          params.set("mode", "hybrid");
+          if (timeline) params.set("timeline", timeline);
+          router.push(path + "?" + params);
+        } else {
+          router.push(response.redirect_url);
+        }
         return;
       }
       setAnswer(response.answer);
@@ -62,6 +79,17 @@ export function AiQueryInput({
             className="h-11 w-full bg-transparent px-1 text-sm text-slate-900 outline-none placeholder:text-slate-400"
           />
         </label>
+        <select
+          value={timeline}
+          onChange={(event) => setTimeline(event.target.value)}
+          aria-label="Job-search timeline"
+          className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 pr-9 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-200 sm:w-48"
+        >
+          <option value="">Any timeline</option>
+          {timelineOptions.map(([label, value]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
         <Button
           type="submit"
           disabled={submitting || query.trim().length < 2}

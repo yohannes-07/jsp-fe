@@ -5,18 +5,12 @@ import { ArrowLeft, BriefcaseBusiness, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Job } from "@/lib/types";
 
-const workNatureLabels: Record<string, string> = {
-  professional: "Professional",
-  students: "Students",
-  seniors: "Seniors",
-  fractional: "Fractional",
-  tech: "Tech",
-  "gig-economy": "Gig economy",
-  "blue-collar": "Blue collar",
-  "manual-labor": "Manual labor",
-  "data-centers": "Data Centers",
-  "long-term": "Long-term",
-  "short-term": "Short-term",
+const experienceLevelLabels: Record<string, string> = {
+  entry: "Entry level",
+  mid: "Mid level",
+  senior: "Senior level",
+  lead: "Lead",
+  executive: "Executive",
 };
 
 
@@ -80,9 +74,12 @@ export default async function JobDetailPage({
               <span className="font-semibold text-slate-800">{salary}</span>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              {job.nature_of_work.map((nature) => (
-                <span key={nature} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                  {workNatureLabels[nature] ?? nature}
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                {job.workplace_type}
+              </span>
+              {job.experience_levels.map((level) => (
+                <span key={level} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                  {experienceLevelLabels[level] ?? level}
                 </span>
               ))}
             </div>
@@ -92,6 +89,14 @@ export default async function JobDetailPage({
           </Button>
         </div>
         <div className="mt-8 grid gap-8 border-t border-slate-100 pt-8">
+          <section>
+            <h2 className="text-lg font-bold text-slate-950">Skills</h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {job.skills.map((skill) => (
+                <span key={skill} className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700">{skill}</span>
+              ))}
+            </div>
+          </section>
           <section>
             <h2 className="text-lg font-bold text-slate-950">About the role</h2>
             <p className="mt-3 whitespace-pre-line text-base leading-7 text-slate-600">

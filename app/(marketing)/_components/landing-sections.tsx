@@ -698,7 +698,7 @@ export function JobsPreview() {
           ].map(([label, value], index) => (
             <Link
               key={label}
-              href={value ? "/jobs?job_type=" + value : "/jobs"}
+              href={value ? "/jobs?" + (value === "remote" ? "workplace_type=" : "job_type=") + value : "/jobs"}
               className={cn(
                 "rounded-full px-4 py-2 text-sm font-semibold transition",
                 index === 0
