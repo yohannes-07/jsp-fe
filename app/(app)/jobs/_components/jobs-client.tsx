@@ -51,6 +51,7 @@ type JobFilters = {
   workplaceType: string;
   experienceLevel: string;
   searchMode: "keyword" | "hybrid";
+  timeline: string;
   page: number;
 };
 
@@ -59,6 +60,8 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
   const user = useAuthStore((state) => state.user);
   const [filters, setFilters] = useState(initialFilters);
   const [showCreate, setShowCreate] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const queryClient = useQueryClient();
 
   const queryString = new URLSearchParams();
   if (initialFilters.q) queryString.set("q", initialFilters.q);
@@ -67,12 +70,23 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
   if (initialFilters.workplaceType) queryString.set("workplace_type", initialFilters.workplaceType);
   if (initialFilters.experienceLevel) queryString.set("experience_level", initialFilters.experienceLevel);
   if (initialFilters.searchMode === "hybrid") queryString.set("mode", "hybrid");
+  if (initialFilters.searchMode === "hybrid" && initialFilters.timeline) {
+    queryString.set("timeline", initialFilters.timeline);
+  }
   queryString.set("page", String(initialFilters.page));
 
   const jobsQuery = useQuery({
     queryKey: ["jobs", queryString.toString()],
     queryFn: () =>
       apiRequest<JobList>("/search/jobs" + (queryString.size ? "?" + queryString : "")),
+  });
+  const manageJob = useMutation({
+    mutationFn: ({ job, action }: { job: Job; action: "close" | "delete" }) =>
+      apiRequest<void | Job>(`/jobs/${job.id}`, {
+        method: action === "delete" ? "DELETE" : "PATCH",
+        body: action === "close" ? JSON.stringify({ status: "closed" }) : undefined,
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["jobs"] }),
   });
 
   const applyFilters = (event: React.FormEvent) => {
@@ -99,7 +113,13 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
         }
         action={
           user?.role === "recruiter" ? (
-            <Button onClick={() => setShowCreate((value) => !value)} className="h-11 rounded-xl">
+            <Button
+              onClick={() => {
+                setEditingJob(null);
+                setShowCreate((value) => !value);
+              }}
+              className="h-11 rounded-xl"
+            >
               <Plus aria-hidden="true" />
               Post a job
             </Button>
@@ -107,7 +127,16 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
         }
       />
 
-      {showCreate && <CreateJobPanel onClose={() => setShowCreate(false)} />}
+      {(showCreate || editingJob) && (
+        <CreateJobPanel
+          key={editingJob?.id ?? "new"}
+          job={editingJob}
+          onClose={() => {
+            setShowCreate(false);
+            setEditingJob(null);
+          }}
+        />
+      )}
 
       <AiQueryInput
         placeholder="Ask CirWork to find a role, explain your options, or guide your next step..."
@@ -184,6 +213,12 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
           description="Please try again in a moment."
         />
       )}
+      {manageJob.isError && (
+        <StatePanel
+          title="The job could not be updated"
+          description="Please try again in a moment."
+        />
+      )}
       {jobsQuery.data?.items.length === 0 && (
         <StatePanel
           title="No roles matched this search"
@@ -197,7 +232,27 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
           </p>
           <div className="grid gap-4 xl:grid-cols-2">
             {jobsQuery.data.items.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <JobCard
+                key={job.id}
+                job={job}
+                canManage={user?.role === "recruiter" && user.id === job.recruiter_id}
+                busy={manageJob.isPending}
+                onEdit={() => {
+                  setShowCreate(false);
+                  setEditingJob(job);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                onClose={() => {
+                  if (window.confirm("Close this job listing?")) {
+                    manageJob.mutate({ job, action: "close" });
+                  }
+                }}
+                onDelete={() => {
+                  if (window.confirm("Delete this job permanently?")) {
+                    manageJob.mutate({ job, action: "delete" });
+                  }
+                }}
+              />
             ))}
           </div>
           <div className="mt-6 flex items-center justify-between">
@@ -233,17 +288,28 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
   );
 }
 
-function JobCard({ job }: { job: Job }) {
+function JobCard({
+  job,
+  canManage,
+  busy,
+  onEdit,
+  onClose,
+  onDelete,
+}: {
+  job: Job;
+  canManage: boolean;
+  busy: boolean;
+  onEdit: () => void;
+  onClose: () => void;
+  onDelete: () => void;
+}) {
   const salary =
     job.salary_min !== null && job.salary_max !== null
       ? "$" + job.salary_min.toLocaleString() + " – $" + job.salary_max.toLocaleString()
       : "Salary not listed";
   return (
-    <Link
-      href={"/jobs/" + job.id}
-      className="group rounded-2xl bg-white p-5 ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5"
-    >
-      <div className="flex items-start gap-4">
+    <article className="group rounded-2xl bg-white ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5">
+      <Link href={"/jobs/" + job.id} className="flex items-start gap-4 p-5">
         <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700">
           <BriefcaseBusiness aria-hidden="true" className="size-5" />
         </span>
@@ -282,29 +348,36 @@ function JobCard({ job }: { job: Job }) {
             {job.description}
           </p>
         </div>
-      </div>
-    </Link>
+      </Link>
+      {canManage && (
+        <div className="flex flex-wrap justify-end gap-2 border-t border-slate-100 px-5 py-3">
+          <Button type="button" variant="outline" disabled={busy} onClick={onEdit}>Edit</Button>
+          <Button type="button" variant="outline" disabled={busy} onClick={onClose}>Close</Button>
+          <Button type="button" variant="ghost" disabled={busy} onClick={onDelete}>Delete</Button>
+        </div>
+      )}
+    </article>
   );
 }
 
-function CreateJobPanel({ onClose }: { onClose: () => void }) {
+function CreateJobPanel({ job, onClose }: { job: Job | null; onClose: () => void }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
-    title: "",
-    skills: "",
-    description: "",
-    requirements: "",
-    location: "",
-    job_type: "full-time" as JobType,
-    workplace_type: "on-site" as WorkplaceType,
-    salary_min: "",
-    salary_max: "",
-    experience_levels: ["entry", "mid"] as JobExperienceLevel[],
+    title: job?.title ?? "",
+    skills: job?.skills.join(", ") ?? "",
+    description: job?.description ?? "",
+    requirements: job?.requirements ?? "",
+    location: job?.location ?? "",
+    job_type: job?.job_type ?? ("full-time" as JobType),
+    workplace_type: job?.workplace_type ?? ("on-site" as WorkplaceType),
+    salary_min: job?.salary_min?.toString() ?? "",
+    salary_max: job?.salary_max?.toString() ?? "",
+    experience_levels: job?.experience_levels ?? (["entry", "mid"] as JobExperienceLevel[]),
   });
   const mutation = useMutation({
     mutationFn: () =>
-      apiRequest<Job>("/jobs", {
-        method: "POST",
+      apiRequest<Job>(job ? `/jobs/${job.id}` : "/jobs", {
+        method: job ? "PATCH" : "POST",
         body: JSON.stringify({
           ...form,
           skills: form.skills.split(",").map((skill) => skill.trim()).filter(Boolean),
@@ -327,8 +400,12 @@ function CreateJobPanel({ onClose }: { onClose: () => void }) {
       className="rounded-2xl bg-white p-5 ring-1 ring-slate-200 sm:p-6"
     >
       <div className="mb-5">
-        <p className="text-xs font-bold tracking-wider text-blue-600 uppercase">New listing</p>
-        <h2 className="mt-1 text-xl font-bold text-slate-950">Post a job</h2>
+        <p className="text-xs font-bold tracking-wider text-blue-600 uppercase">
+          {job ? "Manage listing" : "New listing"}
+        </p>
+        <h2 className="mt-1 text-xl font-bold text-slate-950">
+          {job ? "Edit job" : "Post a job"}
+        </h2>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <Input
@@ -455,7 +532,7 @@ function CreateJobPanel({ onClose }: { onClose: () => void }) {
           type="submit"
           disabled={mutation.isPending || form.experience_levels.length === 0 || !form.skills.trim()}
         >
-          {mutation.isPending ? "Publishing..." : "Publish job"}
+          {mutation.isPending ? "Saving..." : job ? "Save changes" : "Publish job"}
         </Button>
       </div>
     </form>

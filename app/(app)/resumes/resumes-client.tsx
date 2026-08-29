@@ -19,9 +19,13 @@ export function ResumesClient() {
 function CandidateSearch() {
   const [draft, setDraft] = useState("");
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
   const candidates = useQuery({
-    queryKey: ["candidate-search", query],
-    queryFn: () => apiRequest<CandidateList>(`/search/resumes?q=${encodeURIComponent(query)}`),
+    queryKey: ["candidate-search", query, page],
+    queryFn: () =>
+      apiRequest<CandidateList>(
+        `/search/resumes?q=${encodeURIComponent(query)}&page=${page}`,
+      ),
     enabled: query.length > 0,
   });
 
@@ -36,6 +40,7 @@ function CandidateSearch() {
         className="flex gap-2 rounded-2xl bg-white p-4 ring-1 ring-slate-200"
         onSubmit={(event) => {
           event.preventDefault();
+          setPage(1);
           setQuery(draft.trim());
         }}
       >
@@ -64,6 +69,27 @@ function CandidateSearch() {
           </article>
         ))}
       </div>
+      {candidates.data && candidates.data.total > candidates.data.page_size && (
+        <div className="flex items-center justify-between">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={page === 1}
+            onClick={() => setPage((value) => value - 1)}
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-slate-500">Page {page}</span>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={page * candidates.data.page_size >= candidates.data.total}
+            onClick={() => setPage((value) => value + 1)}
+          >
+            Next
+          </Button>
+        </div>
+      )}
       {query && candidates.data?.items.length === 0 && <EmptyState text="No recruiter-visible candidates matched." />}
     </div>
   );
@@ -84,6 +110,14 @@ function ResumeWorkspace() {
   const remove = useMutation({
     mutationFn: (resumeId: string) =>
       apiRequest<void>(`/resumes/${resumeId}`, { method: "DELETE" }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["resumes"] }),
+  });
+  const visibility = useMutation({
+    mutationFn: ({ resumeId, recruiterVisible }: { resumeId: string; recruiterVisible: boolean }) =>
+      apiRequest<Resume>(`/resumes/${resumeId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ recruiter_visible: recruiterVisible }),
+      }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["resumes"] }),
   });
 
@@ -118,6 +152,11 @@ function ResumeWorkspace() {
           We couldn&apos;t delete your resume. Please try again.
         </p>
       )}
+      {visibility.isError && (
+        <p className="rounded-xl bg-red-50 p-4 text-sm text-red-700">
+          We couldn&apos;t update your visibility. Please try again.
+        </p>
+      )}
       {resume && (
         <article className="flex items-center gap-4 rounded-2xl bg-white p-5 ring-1 ring-slate-200">
           <FileText className="text-blue-700" aria-hidden="true" />
@@ -126,6 +165,20 @@ function ResumeWorkspace() {
             <p className="text-xs text-slate-500">
               {resume.indexing_status === "indexed" ? "Ready for matching" : "Preparing for matching..."}
             </p>
+            <label className="mt-2 inline-flex items-center gap-2 text-xs font-medium text-slate-600">
+              <input
+                type="checkbox"
+                checked={resume.recruiter_visible}
+                disabled={visibility.isPending}
+                onChange={(event) =>
+                  visibility.mutate({
+                    resumeId: resume.id,
+                    recruiterVisible: event.target.checked,
+                  })
+                }
+              />
+              Allow recruiters to find me
+            </label>
           </div>
           <Button
             type="button"
