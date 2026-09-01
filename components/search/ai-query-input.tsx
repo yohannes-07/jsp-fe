@@ -85,7 +85,9 @@ export function AiQueryInput({
           aria-label="Job-search timeline"
           className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 pr-9 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-200 sm:w-48"
         >
-          <option value="">Any timeline</option>
+          <option value="" disabled>
+            Timeline
+          </option>
           {timelineOptions.map(([label, value]) => (
             <option key={value} value={value}>{label}</option>
           ))}
