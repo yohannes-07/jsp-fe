@@ -119,3 +119,17 @@ export type TalentWorkspace = {
   retain_talent: TalentAction[];
   create_value: TalentAction[];
 };
+
+export type MessageRead = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  retrieved_context?: any;
+};
+
+export type AssistantChatResponse = {
+  conversation_id: string;
+  message: MessageRead;
+};
