@@ -13,10 +13,10 @@ export function SimpleHero() {
       />
       <div className="mx-auto max-w-3xl px-5 py-20 text-center sm:px-8 sm:py-28">
         <h1 className="text-5xl leading-[1.05] font-bold tracking-[-0.055em] text-slate-950 sm:text-6xl">
-          Find work that fits <span className="text-primary">you.</span>
+          Find work that suits <span className="text-primary">you.</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-slate-600">
-          Tell us what you are looking for and CirWork will help you find the right place to start and the right supports to help you thrive in your role.
+          Tell us the type of work you are looking for and CirWork will help you find the right place to start and the right supports to help you thrive in the role.
         </p>
         <AiQueryInput
           className="mx-auto mt-8 max-w-2xl text-left"
