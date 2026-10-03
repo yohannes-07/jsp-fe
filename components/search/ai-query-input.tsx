@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, SendHorizonal, Sparkles } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api-client";
 import type { QueryResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -66,55 +65,84 @@ export function AiQueryInput({
 
   return (
     <div className={className}>
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-2 rounded-xl border border-slate-300 bg-white p-2 shadow-sm sm:flex-row sm:items-center"
-      >
-        <label className="w-full min-w-0 flex-1">
-          <span className="sr-only">Ask CirWork</span>
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={placeholder}
-            className="h-11 w-full bg-transparent px-1 text-sm text-slate-900 outline-none placeholder:text-slate-400"
-          />
-        </label>
-        <select
-          value={timeline}
-          onChange={(event) => setTimeline(event.target.value)}
-          aria-label="Job-search timeline"
-          className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 pr-9 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-200 sm:w-48"
-        >
-          <option value="" disabled>
-            Timeline
-          </option>
-          {timelineOptions.map(([label, value]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </select>
-        <Button
-          type="submit"
-          disabled={submitting || query.trim().length < 2}
-          className="h-11 w-full shrink-0 rounded-lg px-5 sm:w-auto"
-        >
-          {submitting ? (
-            <LoaderCircle aria-hidden="true" className="animate-spin" />
-          ) : (
-            "Ask CirWork"
+      {/* AI panel — visually distinct from the keyword search form below */}
+      <div className="rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-px shadow-lg shadow-blue-900/20">
+        <div className="rounded-[15px] bg-gradient-to-br from-blue-950 to-indigo-950 px-5 py-4">
+          {/* Header label */}
+          <div className="mb-3 flex items-center gap-2">
+            <Sparkles aria-hidden="true" className="size-4 text-blue-300" />
+            <span className="text-xs font-semibold tracking-wide text-blue-300 uppercase">
+              Ask CirWork AI
+            </span>
+          </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            {/* Chat-style text input */}
+            <label className="relative flex-1 min-w-0">
+              <span className="sr-only">Ask CirWork</span>
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={placeholder}
+                className="h-11 w-full rounded-xl bg-white/10 px-4 text-sm text-white outline-none ring-1 ring-white/20 transition placeholder:text-blue-300/60 focus:bg-white/15 focus:ring-white/40"
+              />
+            </label>
+
+            {/* Timeline selector */}
+            <select
+              value={timeline}
+              onChange={(event) => setTimeline(event.target.value)}
+              aria-label="Job-search timeline"
+              className="h-11 w-full rounded-xl bg-white/10 px-3 text-sm text-blue-100 ring-1 ring-white/20 outline-none transition focus:bg-white/15 focus:ring-white/40 sm:w-48"
+            >
+              <option value="" disabled className="bg-indigo-950 text-slate-300">
+                Timeline
+              </option>
+              {timelineOptions.map(([label, value]) => (
+                <option key={value} value={value} className="bg-indigo-950 text-white">
+                  {label}
+                </option>
+              ))}
+            </select>
+
+            {/* Send button */}
+            <button
+              type="submit"
+              disabled={submitting || query.trim().length < 2}
+              aria-label="Send"
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-blue-700 shadow transition hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto w-full"
+            >
+              {submitting ? (
+                <LoaderCircle aria-hidden="true" className="animate-spin size-4" />
+              ) : (
+                <>
+                  <SendHorizonal aria-hidden="true" className="size-4" />
+                  Ask CirWork
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* AI response / error bubble */}
+          {(answer || error) && (
+            <div
+              role="status"
+              className={cn(
+                "mt-4 rounded-xl px-4 py-3 text-sm leading-6",
+                error
+                  ? "bg-red-900/40 text-red-300 ring-1 ring-red-500/30"
+                  : "bg-white/10 text-blue-100 ring-1 ring-white/10",
+              )}
+            >
+              {!error && (
+                <Sparkles aria-hidden="true" className="mb-1 inline-block size-3.5 text-blue-300 mr-1.5" />
+              )}
+              {error ?? answer}
+            </div>
           )}
-        </Button>
-      </form>
-      {(answer || error) && (
-        <div
-          role="status"
-          className={cn(
-            "mt-3 rounded-xl px-4 py-3 text-sm leading-6",
-            error ? "bg-red-50 text-red-700" : "bg-blue-50 text-slate-700",
-          )}
-        >
-          {error ?? answer}
         </div>
-      )}
+      </div>
     </div>
   );
 }
+
