@@ -7,7 +7,7 @@ import {
   destroySession,
   restoreSession,
 } from "@/lib/api-client";
-import type { User, UserRole } from "@/lib/types";
+import type { ExperienceLevel, User, UserRole } from "@/lib/types";
 
 
 type SignupPayload = {
@@ -16,6 +16,10 @@ type SignupPayload = {
   full_name: string;
   role: UserRole;
   company_name?: string;
+  location?: string;
+  skills?: string[];
+  experience_level?: ExperienceLevel;
+  preferences?: Record<string, unknown>;
 };
 
 type AuthState = {

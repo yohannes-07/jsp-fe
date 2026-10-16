@@ -111,7 +111,7 @@ export function AssistantChat({
                             Recommended Resources
                           </p>
                           <div className="grid gap-3 sm:grid-cols-2">
-                            {message.retrieved_context.resources.map((resource: any, idx: number) => (
+                            {message.retrieved_context.resources.map((resource, idx) => (
                               <a
                                 key={idx}
                                 href={resource.source_url}

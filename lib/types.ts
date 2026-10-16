@@ -35,7 +35,11 @@ export type JobExperienceLevel = "entry" | "mid" | "senior" | "lead" | "executiv
 
 export type Job = {
   id: string;
-  recruiter_id: string;
+  recruiter_id: string | null;
+  source: "direct" | "external";
+  external_company_name: string | null;
+  apply_url: string | null;
+  posted_at: string | null;
   title: string;
   skills: string[];
   description: string;
@@ -54,7 +58,7 @@ export type Job = {
     full_name: string;
     company_name: string | null;
     company_logo_url: string | null;
-  };
+  } | null;
 };
 
 export type JobList = {
@@ -66,6 +70,12 @@ export type JobList = {
   has_next: boolean;
   has_previous: boolean;
   semantic_available?: boolean;
+  external_search_suggested?: boolean;
+};
+
+export type ExternalJobList = {
+  items: Job[];
+  cached: boolean;
 };
 
 export type Resume = {
@@ -125,8 +135,16 @@ export type MessageRead = {
   role: "user" | "assistant";
   content: string;
   created_at: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  retrieved_context?: any;
+  retrieved_context?: {
+    resources?: Array<{
+      title: string;
+      category: string;
+      description: string;
+      location: string | null;
+      source_url: string;
+    }>;
+    [key: string]: unknown;
+  };
 };
 
 export type AssistantChatResponse = {

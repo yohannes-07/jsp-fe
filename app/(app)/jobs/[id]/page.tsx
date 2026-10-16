@@ -64,7 +64,9 @@ export default async function JobDetailPage({
               {job.title}
             </h1>
             <p className="mt-2 text-base text-slate-600">
-              {job.recruiter.company_name ?? job.recruiter.full_name}
+              {job.source === "external"
+                ? job.external_company_name ?? "Company not specified"
+                : job.recruiter?.company_name ?? job.recruiter?.full_name}
             </p>
             <div className="mt-5 flex flex-wrap gap-5 text-sm text-slate-600">
               <span className="inline-flex items-center gap-1.5">
@@ -85,7 +87,11 @@ export default async function JobDetailPage({
             </div>
           </div>
           <Button asChild className="h-11 rounded-xl px-6">
-            <Link href="/assistants/job-discovery">Ask about this role</Link>
+            {job.source === "external" && job.apply_url ? (
+              <a href={job.apply_url} target="_blank" rel="noopener noreferrer">Apply on Company Site</a>
+            ) : (
+              <Link href="/assistants/job-discovery">Apply on CirWork</Link>
+            )}
           </Button>
         </div>
         <div className="mt-8 grid gap-8 border-t border-slate-100 pt-8">

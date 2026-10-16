@@ -94,7 +94,7 @@ export function SignupForm({
     formState: { errors, isSubmitting },
   } = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { role: defaultRole },
+    defaultValues: { role: defaultRole, remote_preference: false },
   });
   const role = useWatch({ control, name: "role" });
 
@@ -102,8 +102,25 @@ export function SignupForm({
     setSubmitError(null);
     try {
       await signup({
-        ...values,
+        email: values.email,
+        password: values.password,
+        full_name: values.full_name,
+        role: values.role,
         company_name: values.role === "recruiter" ? values.company_name : undefined,
+        location: values.role === "job_seeker" ? values.location?.trim() : undefined,
+        skills:
+          values.role === "job_seeker"
+            ? values.skills?.split(",").map((skill) => skill.trim()).filter(Boolean)
+            : undefined,
+        experience_level:
+          values.role === "job_seeker" ? values.experience_level : undefined,
+        preferences:
+          values.role === "job_seeker"
+            ? {
+                target_roles: [values.target_role?.trim()].filter(Boolean),
+                workplace_types: values.remote_preference ? ["remote"] : [],
+              }
+            : undefined,
       });
       router.replace(values.role === "recruiter" ? "/jobs" : "/profile");
     } catch (error) {
@@ -153,6 +170,49 @@ export function SignupForm({
             {...register("company_name")}
           />
         </FormField>
+      )}
+      {role === "job_seeker" && (
+        <>
+          <FormField label="Target role" error={errors.target_role?.message}>
+            <Input
+              placeholder="e.g. Software Engineer"
+              className="h-11"
+              {...register("target_role")}
+            />
+          </FormField>
+          <FormField label="Location" error={errors.location?.message}>
+            <Input
+              autoComplete="address-level2"
+              placeholder="City or region"
+              className="h-11"
+              {...register("location")}
+            />
+          </FormField>
+          <FormField label="Skills" error={errors.skills?.message}>
+            <Input
+              placeholder="Python, customer service, project management"
+              className="h-11"
+              {...register("skills")}
+            />
+          </FormField>
+          <FormField label="Experience level" error={errors.experience_level?.message}>
+            <select
+              className="h-11 w-full rounded-md border border-input bg-white px-3 text-sm"
+              {...register("experience_level")}
+            >
+              <option value="">Choose a level</option>
+              <option value="entry">Entry level</option>
+              <option value="mid">Mid level</option>
+              <option value="senior">Senior level</option>
+              <option value="lead">Lead</option>
+              <option value="executive">Executive</option>
+            </select>
+          </FormField>
+          <label className="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
+            <input type="checkbox" {...register("remote_preference")} />
+            Prefer remote opportunities
+          </label>
+        </>
       )}
       <FormField
         label={role === "recruiter" ? "Company Email" : "Email"}

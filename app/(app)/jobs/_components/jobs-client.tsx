@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BriefcaseBusiness, MapPin, Plus, Search, Sparkles } from "lucide-react";
+import { BriefcaseBusiness, ExternalLink, Loader2, MapPin, Plus, Search, Sparkles } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { AiQueryInput } from "@/components/search/ai-query-input";
@@ -19,6 +19,7 @@ import type {
   JobList,
   JobType,
   WorkplaceType,
+  ExternalJobList,
 } from "@/lib/types";
 
 const jobTypeOptions: { label: string; value: JobType }[] = [
@@ -62,14 +63,35 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
   const [showCreate, setShowCreate] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const queryClient = useQueryClient();
+  const targetRoles = Array.isArray(user?.preferences.target_roles)
+    ? user.preferences.target_roles.filter(
+        (value): value is string => typeof value === "string" && Boolean(value.trim()),
+      )
+    : [];
+  const workplacePreferences = Array.isArray(user?.preferences.workplace_types)
+    ? user.preferences.workplace_types.filter(
+        (value): value is string => typeof value === "string",
+      )
+    : [];
+  const useProfileDefaults = user?.role === "job_seeker" && !initialFilters.q;
+  const effectiveQuery = initialFilters.q || (useProfileDefaults ? targetRoles[0] ?? "" : "");
+  const effectiveWorkplace =
+    initialFilters.workplaceType ||
+    (useProfileDefaults && workplacePreferences.includes("remote") ? "remote" : "");
+  const effectiveLocation =
+    initialFilters.location ||
+    (useProfileDefaults && effectiveWorkplace !== "remote" ? user?.location ?? "" : "");
+  const effectiveExperience =
+    initialFilters.experienceLevel ||
+    (useProfileDefaults ? user?.experience_level ?? "" : "");
 
   const queryString = new URLSearchParams();
-  if (initialFilters.q) queryString.set("q", initialFilters.q);
-  if (initialFilters.location) queryString.set("location", initialFilters.location);
+  if (effectiveQuery) queryString.set("q", effectiveQuery);
+  if (effectiveLocation) queryString.set("location", effectiveLocation);
   if (initialFilters.jobType) queryString.set("job_type", initialFilters.jobType);
-  if (initialFilters.workplaceType) queryString.set("workplace_type", initialFilters.workplaceType);
-  if (initialFilters.experienceLevel) queryString.set("experience_level", initialFilters.experienceLevel);
-  if (initialFilters.searchMode === "hybrid") queryString.set("mode", "hybrid");
+  if (effectiveWorkplace) queryString.set("workplace_type", effectiveWorkplace);
+  if (effectiveExperience) queryString.set("experience_level", effectiveExperience);
+  if (initialFilters.searchMode === "hybrid" || useProfileDefaults) queryString.set("mode", "hybrid");
   if (initialFilters.searchMode === "hybrid" && initialFilters.timeline) {
     queryString.set("timeline", initialFilters.timeline);
   }
@@ -80,6 +102,32 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
     queryFn: () =>
       apiRequest<JobList>("/search/jobs" + (queryString.size ? "?" + queryString : "")),
   });
+  const externalQueryString = new URLSearchParams();
+  if (effectiveQuery) externalQueryString.set("q", effectiveQuery);
+  if (effectiveLocation) externalQueryString.set("location", effectiveLocation);
+  if (initialFilters.jobType) externalQueryString.set("job_type", initialFilters.jobType);
+  if (effectiveWorkplace) externalQueryString.set("workplace_type", effectiveWorkplace);
+  if (effectiveExperience) externalQueryString.set("experience_level", effectiveExperience);
+  const externalJobsQuery = useQuery({
+    queryKey: ["external-jobs", externalQueryString.toString()],
+    queryFn: () =>
+      apiRequest<ExternalJobList>("/search/external-jobs?" + externalQueryString),
+    enabled: Boolean(
+      initialFilters.page === 1 &&
+        effectiveQuery &&
+        jobsQuery.data?.external_search_suggested,
+    ),
+    retry: 1,
+  });
+  const displayedJobs = jobsQuery.data
+    ? [
+        ...jobsQuery.data.items,
+        ...(externalJobsQuery.data?.items ?? []).filter(
+          (externalJob) =>
+            !jobsQuery.data.items.some((localJob) => localJob.id === externalJob.id),
+        ),
+      ]
+    : [];
   const manageJob = useMutation({
     mutationFn: ({ job, action }: { job: Job; action: "close" | "delete" }) =>
       apiRequest<void | Job>(`/jobs/${job.id}`, {
@@ -219,23 +267,29 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
           description="Please try again in a moment."
         />
       )}
-      {jobsQuery.data?.items.length === 0 && (
+      {externalJobsQuery.isFetching && (
+        <div className="flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-3 text-sm font-medium text-blue-800">
+          <Loader2 aria-hidden="true" className="size-4 animate-spin" />
+          Searching additional sources...
+        </div>
+      )}
+      {jobsQuery.data?.items.length === 0 && !externalJobsQuery.isFetching && displayedJobs.length === 0 && (
         <StatePanel
           title="No roles matched this search"
           description="Try a broader title, remove a filter, or ask CirWork to suggest another direction."
         />
       )}
-      {jobsQuery.data && jobsQuery.data.items.length > 0 && (
+      {jobsQuery.data && displayedJobs.length > 0 && (
         <div>
           <p className="mb-4 text-sm font-semibold text-slate-500">
-            {jobsQuery.data.total} open {jobsQuery.data.total === 1 ? "role" : "roles"}
+            {jobsQuery.data.total + (externalJobsQuery.data?.items.length ?? 0)} open {jobsQuery.data.total + (externalJobsQuery.data?.items.length ?? 0) === 1 ? "role" : "roles"}
           </p>
           <div className="grid gap-4 xl:grid-cols-2">
-            {jobsQuery.data.items.map((job) => (
+            {displayedJobs.map((job) => (
               <JobCard
                 key={job.id}
                 job={job}
-                canManage={user?.role === "recruiter" && user.id === job.recruiter_id}
+                canManage={job.source === "direct" && user?.role === "recruiter" && user.id === job.recruiter_id}
                 busy={manageJob.isPending}
                 onEdit={() => {
                   setShowCreate(false);
@@ -307,48 +361,55 @@ function JobCard({
     job.salary_min !== null && job.salary_max !== null
       ? "$" + job.salary_min.toLocaleString() + " – $" + job.salary_max.toLocaleString()
       : "Salary not listed";
+  const company =
+    job.source === "external"
+      ? job.external_company_name ?? "Company not specified"
+      : job.recruiter?.company_name ?? job.recruiter?.full_name ?? "CirWork employer";
+  const content = (
+    <>
+      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700">
+        <BriefcaseBusiness aria-hidden="true" className="size-5" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="font-bold text-slate-950 group-hover:text-blue-700">{job.title}</h2>
+            <p className="mt-1 text-sm text-slate-500">{company}</p>
+          </div>
+          <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">{job.job_type}</span>
+        </div>
+        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-600">
+          <span className="inline-flex items-center gap-1.5"><MapPin aria-hidden="true" className="size-4 text-blue-600" />{job.location}</span>
+          <span className="font-semibold text-slate-700">{salary}</span>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{workplaceOptions.find((option) => option.value === job.workplace_type)?.label}</span>
+          {job.experience_levels.map((level) => (
+            <span key={level} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{experienceLevelOptions.find((option) => option.value === level)?.label ?? level}</span>
+          ))}
+        </div>
+        <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-600">{job.description}</p>
+      </div>
+    </>
+  );
   return (
     <article className="group rounded-2xl bg-white ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5">
-      <Link href={"/jobs/" + job.id} className="flex items-start gap-4 p-5">
-        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700">
-          <BriefcaseBusiness aria-hidden="true" className="size-5" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="font-bold text-slate-950 group-hover:text-blue-700">
-                {job.title}
-              </h2>
-              <p className="mt-1 text-sm text-slate-500">
-                {job.recruiter.company_name ?? job.recruiter.full_name}
-              </p>
-            </div>
-            <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
-              {job.job_type}
-            </span>
-          </div>
-          <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-600">
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin aria-hidden="true" className="size-4 text-blue-600" />
-              {job.location}
-            </span>
-            <span className="font-semibold text-slate-700">{salary}</span>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
-              {workplaceOptions.find((option) => option.value === job.workplace_type)?.label}
-            </span>
-            {job.experience_levels.map((level) => (
-              <span key={level} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
-                {experienceLevelOptions.find((option) => option.value === level)?.label ?? level}
-              </span>
-            ))}
-          </div>
-          <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-600">
-            {job.description}
-          </p>
-        </div>
-      </Link>
+      {job.source === "external" ? (
+        <div className="flex items-start gap-4 p-5">{content}</div>
+      ) : (
+        <Link href={"/jobs/" + job.id} className="flex items-start gap-4 p-5">{content}</Link>
+      )}
+      <div className="flex justify-end border-t border-slate-100 px-5 py-3">
+        {job.source === "external" && job.apply_url ? (
+          <Button asChild>
+            <a href={job.apply_url} target="_blank" rel="noopener noreferrer">
+              Apply on Company Site <ExternalLink aria-hidden="true" />
+            </a>
+          </Button>
+        ) : !canManage ? (
+          <Button asChild><Link href={"/jobs/" + job.id}>Apply on CirWork</Link></Button>
+        ) : null}
+      </div>
       {canManage && (
         <div className="flex flex-wrap justify-end gap-2 border-t border-slate-100 px-5 py-3">
           <Button type="button" variant="outline" disabled={busy} onClick={onEdit}>Edit</Button>
