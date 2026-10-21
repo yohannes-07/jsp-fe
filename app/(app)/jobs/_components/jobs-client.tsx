@@ -12,6 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
+import {
+  countryOptions,
+  regionOptionsForCountry,
+} from "@/lib/job-search-locations";
 import { useAuthStore } from "@/lib/store/auth-store";
 import type {
   Job,
@@ -47,6 +51,7 @@ const experienceLevelOptions: { label: string; value: JobExperienceLevel }[] = [
 
 type JobFilters = {
   q: string;
+  country: string;
   location: string;
   jobType: string;
   workplaceType: string;
@@ -63,6 +68,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
   const [showCreate, setShowCreate] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const queryClient = useQueryClient();
+  const regionOptions = regionOptionsForCountry(filters.country);
   const targetRoles = Array.isArray(user?.preferences.target_roles)
     ? user.preferences.target_roles.filter(
         (value): value is string => typeof value === "string" && Boolean(value.trim()),
@@ -87,6 +93,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
 
   const queryString = new URLSearchParams();
   if (effectiveQuery) queryString.set("q", effectiveQuery);
+  queryString.set("country", initialFilters.country);
   if (effectiveLocation) queryString.set("location", effectiveLocation);
   if (initialFilters.jobType) queryString.set("job_type", initialFilters.jobType);
   if (effectiveWorkplace) queryString.set("workplace_type", effectiveWorkplace);
@@ -104,6 +111,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
   });
   const externalQueryString = new URLSearchParams();
   if (effectiveQuery) externalQueryString.set("q", effectiveQuery);
+  externalQueryString.set("country", initialFilters.country);
   if (effectiveLocation) externalQueryString.set("location", effectiveLocation);
   if (initialFilters.jobType) externalQueryString.set("job_type", initialFilters.jobType);
   if (effectiveWorkplace) externalQueryString.set("workplace_type", effectiveWorkplace);
@@ -141,6 +149,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
     event.preventDefault();
     const params = new URLSearchParams();
     if (filters.q.trim()) params.set("q", filters.q.trim());
+    params.set("country", filters.country);
     if (filters.location.trim()) params.set("location", filters.location.trim());
     if (filters.jobType) params.set("job_type", filters.jobType);
     if (filters.workplaceType) params.set("workplace_type", filters.workplaceType);
@@ -192,7 +201,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
 
       <form
         onSubmit={applyFilters}
-        className="grid gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 md:grid-cols-2 xl:grid-cols-[1fr_0.75fr_0.55fr_0.55fr_0.55fr_auto]"
+        className="grid gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 md:grid-cols-2 xl:grid-cols-[1fr_0.7fr_0.7fr_0.55fr_0.55fr_0.55fr_auto]"
       >
         <label className="relative">
           <Search aria-hidden="true" className="absolute top-3.5 left-3 size-4 text-slate-400" />
@@ -204,14 +213,39 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
           />
         </label>
         <label className="relative">
-          <MapPin aria-hidden="true" className="absolute top-3.5 left-3 size-4 text-slate-400" />
-          <Input
+          <MapPin aria-hidden="true" className="pointer-events-none absolute top-3.5 left-3 size-4 text-slate-400" />
+          <select
+            value={filters.country}
+            onChange={(event) =>
+              setFilters({ ...filters, country: event.target.value, location: "" })
+            }
+            className="h-11 w-full rounded-md border border-input bg-white pr-3 pl-9 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50"
+            aria-label="Country"
+          >
+            {countryOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        {regionOptions.length > 0 && (
+          <select
             value={filters.location}
             onChange={(event) => setFilters({ ...filters, location: event.target.value })}
-            placeholder="Location"
-            className="h-11 pl-9"
-          />
-        </label>
+            className="h-11 rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50"
+            aria-label={filters.country === "us" ? "State" : "Region"}
+          >
+            <option value="">
+              {filters.country === "us" ? "All states" : "All UK regions"}
+            </option>
+            {regionOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        )}
         <select
           value={filters.jobType}
           onChange={(event) => setFilters({ ...filters, jobType: event.target.value })}

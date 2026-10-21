@@ -18,6 +18,7 @@ export default async function JobsPage({
 }: {
   searchParams: Promise<{
     q?: string;
+    country?: string;
     location?: string;
     job_type?: string;
     workplace_type?: string;
@@ -32,6 +33,9 @@ export default async function JobsPage({
     <JobsClient
       initialFilters={{
         q: params.q ?? "",
+        country: /^[a-z]{2}$/i.test(params.country ?? "")
+          ? params.country!.toLowerCase()
+          : "us",
         location: params.location ?? "",
         jobType: params.job_type ?? "",
         workplaceType: params.workplace_type ?? "",
