@@ -78,6 +78,18 @@ export type ExternalJobList = {
   cached: boolean;
 };
 
+export type JobApplication = {
+  id: string;
+  job_id: string;
+  applicant_id: string;
+  resume_id: string | null;
+  phone_number: string;
+  cover_note: string | null;
+  status: "submitted" | "reviewing" | "shortlisted" | "rejected" | "withdrawn";
+  created_at: string;
+  updated_at: string;
+};
+
 export type Resume = {
   id: string;
   file_name: string;

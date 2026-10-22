@@ -90,7 +90,7 @@ export default async function JobDetailPage({
             {job.source === "external" && job.apply_url ? (
               <a href={job.apply_url} target="_blank" rel="noopener noreferrer">Apply on Company Site</a>
             ) : (
-              <Link href="/assistants/job-discovery">Apply on CirWork</Link>
+              <Link href={`/jobs/${job.id}/apply`}>Apply on CirWork</Link>
             )}
           </Button>
         </div>
