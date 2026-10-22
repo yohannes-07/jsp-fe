@@ -5,6 +5,9 @@ import { ArrowLeft, BriefcaseBusiness, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Job } from "@/lib/types";
 
+import { JobApplicationAction } from "./job-application-action";
+import { RecruiterApplications } from "./recruiter-applications";
+
 const experienceLevelLabels: Record<string, string> = {
   entry: "Entry level",
   mid: "Mid level",
@@ -86,13 +89,13 @@ export default async function JobDetailPage({
               ))}
             </div>
           </div>
-          <Button asChild className="h-11 rounded-xl px-6">
-            {job.source === "external" && job.apply_url ? (
+          {job.source === "external" && job.apply_url ? (
+            <Button asChild className="h-11 rounded-xl px-6">
               <a href={job.apply_url} target="_blank" rel="noopener noreferrer">Apply on Company Site</a>
-            ) : (
-              <Link href={`/jobs/${job.id}/apply`}>Apply on CirWork</Link>
-            )}
-          </Button>
+            </Button>
+          ) : (
+            <JobApplicationAction job={job} />
+          )}
         </div>
         <div className="mt-8 grid gap-8 border-t border-slate-100 pt-8">
           <section>
@@ -117,6 +120,7 @@ export default async function JobDetailPage({
           </section>
         </div>
       </article>
+      {job.source === "direct" && <RecruiterApplications job={job} />}
     </div>
   );
 }

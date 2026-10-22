@@ -90,6 +90,22 @@ export type JobApplication = {
   updated_at: string;
 };
 
+export type JobApplicant = {
+  id: string;
+  applicant_id: string;
+  full_name: string;
+  email: string;
+  location: string | null;
+  skills: string[];
+  experience_level: ExperienceLevel | null;
+  resume_id: string | null;
+  resume_file_name: string | null;
+  phone_number: string;
+  cover_note: string | null;
+  status: "submitted" | "reviewing" | "shortlisted" | "rejected" | "withdrawn";
+  created_at: string;
+};
+
 export type Resume = {
   id: string;
   file_name: string;

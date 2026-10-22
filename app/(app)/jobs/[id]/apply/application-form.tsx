@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { ArrowLeft, CheckCircle2, FileText, Send } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, CheckCircle2, FileText, Send, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { useAuthStore } from "@/lib/store/auth-store";
 import type { Job, JobApplication, Resume } from "@/lib/types";
 
 export function ApplicationForm({ job }: { job: Job }) {
+  const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [coverNote, setCoverNote] = useState("");
@@ -31,6 +32,14 @@ export function ApplicationForm({ job }: { job: Job }) {
         }),
       }),
   });
+  const upload = useMutation({
+    mutationFn: (file: File) => {
+      const body = new FormData();
+      body.append("file", file);
+      return apiRequest<Resume>("/resumes", { method: "POST", body });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["resumes"] }),
+  });
 
   if (application.isSuccess) {
     return (
@@ -40,9 +49,14 @@ export function ApplicationForm({ job }: { job: Job }) {
         <p className="mt-3 text-slate-600">
           Your application for {job.title} has been saved and submitted.
         </p>
-        <Button asChild className="mt-6">
-          <Link href="/jobs">Browse more jobs</Link>
-        </Button>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Button asChild>
+            <Link href={`/jobs/${job.id}`}>View applied job</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/jobs">Browse more jobs</Link>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -124,10 +138,29 @@ export function ApplicationForm({ job }: { job: Job }) {
                     : "You can apply without a resume, or upload one before submitting."}
                 </p>
                 {!resume && !resumes.isLoading && (
-                  <Link href="/resumes" className="mt-2 inline-block text-xs font-bold text-blue-700 hover:underline">Upload a resume</Link>
+                  <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-blue-200 bg-white px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50">
+                    <Upload aria-hidden="true" className="size-4" />
+                    {upload.isPending ? "Uploading..." : "Upload resume here"}
+                    <input
+                      type="file"
+                      accept=".pdf,.docx,.txt"
+                      className="sr-only"
+                      disabled={upload.isPending}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file) upload.mutate(file);
+                        event.target.value = "";
+                      }}
+                    />
+                  </label>
                 )}
               </div>
             </div>
+            {upload.isError && (
+              <p className="mt-3 text-xs font-medium text-red-700">
+                {resumeUploadError(upload.error)}
+              </p>
+            )}
           </div>
 
           {application.isError && (
@@ -136,7 +169,7 @@ export function ApplicationForm({ job }: { job: Job }) {
             </p>
           )}
 
-          <Button type="submit" className="h-11 w-full rounded-xl" disabled={application.isPending || !user}>
+          <Button type="submit" className="h-11 w-full rounded-xl" disabled={application.isPending || upload.isPending || !user}>
             <Send aria-hidden="true" />
             {application.isPending ? "Sending application..." : "Submit application"}
           </Button>
@@ -163,4 +196,14 @@ function applicationError(error: Error): string {
     return error.message;
   }
   return "We couldn't send your application. Please try again.";
+}
+
+function resumeUploadError(error: Error): string {
+  if (error instanceof ApiError) {
+    if (error.status === 413) return "Choose a resume smaller than 10 MB.";
+    if (error.status === 415) return "Choose a PDF, DOCX, or text file.";
+    if (error.status === 422) return "We couldn't read text from that resume.";
+    return error.message;
+  }
+  return "We couldn't upload your resume. Please try again.";
 }
