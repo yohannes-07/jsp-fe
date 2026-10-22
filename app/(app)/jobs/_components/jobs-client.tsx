@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BriefcaseBusiness, ExternalLink, Loader2, MapPin, Plus, Search, Sparkles } from "lucide-react";
+import { BriefcaseBusiness, Loader2, MapPin, Plus, Search, Sparkles } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { AiQueryInput } from "@/components/search/ai-query-input";
@@ -304,7 +304,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
       {externalJobsQuery.isFetching && (
         <div className="flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-3 text-sm font-medium text-blue-800">
           <Loader2 aria-hidden="true" className="size-4 animate-spin" />
-          Searching additional sources...
+          Finding more opportunities that match your search...
         </div>
       )}
       {jobsQuery.data?.items.length === 0 && !externalJobsQuery.isFetching && displayedJobs.length === 0 && (
@@ -428,20 +428,10 @@ function JobCard({
   );
   return (
     <article className="group rounded-2xl bg-white ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5">
-      {job.source === "external" ? (
-        <div className="flex items-start gap-4 p-5">{content}</div>
-      ) : (
-        <Link href={"/jobs/" + job.id} className="flex items-start gap-4 p-5">{content}</Link>
-      )}
+      <Link href={"/jobs/" + job.id} className="flex items-start gap-4 p-5">{content}</Link>
       <div className="flex justify-end border-t border-slate-100 px-5 py-3">
-        {job.source === "external" && job.apply_url ? (
-          <Button asChild>
-            <a href={job.apply_url} target="_blank" rel="noopener noreferrer">
-              Apply on Company Site <ExternalLink aria-hidden="true" />
-            </a>
-          </Button>
-        ) : !canManage ? (
-          <Button asChild><Link href={"/jobs/" + job.id}>Apply on CirWork</Link></Button>
+        {!canManage ? (
+          <Button asChild><Link href={"/jobs/" + job.id}>View job details</Link></Button>
         ) : null}
       </div>
       {canManage && (
