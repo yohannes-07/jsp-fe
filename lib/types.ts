@@ -45,6 +45,7 @@ export type Job = {
   description: string;
   requirements: string;
   location: string;
+  country_code: string;
   job_type: JobType;
   workplace_type: WorkplaceType;
   experience_levels: JobExperienceLevel[];

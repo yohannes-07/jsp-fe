@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -69,6 +69,19 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const queryClient = useQueryClient();
   const regionOptions = regionOptionsForCountry(filters.country);
+  useEffect(() => {
+    setFilters(initialFilters);
+  }, [
+    initialFilters.country,
+    initialFilters.experienceLevel,
+    initialFilters.jobType,
+    initialFilters.location,
+    initialFilters.page,
+    initialFilters.q,
+    initialFilters.searchMode,
+    initialFilters.timeline,
+    initialFilters.workplaceType,
+  ]);
   const targetRoles = Array.isArray(user?.preferences.target_roles)
     ? user.preferences.target_roles.filter(
         (value): value is string => typeof value === "string" && Boolean(value.trim()),
@@ -159,7 +172,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="w-full min-w-0 space-y-8">
       <PageHeader
         eyebrow={user?.role === "recruiter" ? "Recruiting workspace" : "Job discovery"}
         title={user?.role === "recruiter" ? "Jobs" : "Find your next opportunity"}
@@ -201,9 +214,9 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
 
       <form
         onSubmit={applyFilters}
-        className="grid gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 md:grid-cols-2 xl:grid-cols-[1fr_0.7fr_0.7fr_0.55fr_0.55fr_0.55fr_auto]"
+        className="flex flex-wrap gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200"
       >
-        <label className="relative">
+        <label className="relative w-full lg:min-w-72 lg:flex-[2_1_20rem]">
           <Search aria-hidden="true" className="absolute top-3.5 left-3 size-4 text-slate-400" />
           <Input
             value={filters.q}
@@ -212,7 +225,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
             className="h-11 pl-9"
           />
         </label>
-        <label className="relative">
+        <label className="relative w-full sm:min-w-44 sm:flex-1">
           <MapPin aria-hidden="true" className="pointer-events-none absolute top-3.5 left-3 size-4 text-slate-400" />
           <select
             value={filters.country}
@@ -233,7 +246,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
           <select
             value={filters.location}
             onChange={(event) => setFilters({ ...filters, location: event.target.value })}
-            className="h-11 rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50"
+            className="h-11 w-full rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50 sm:min-w-40 sm:flex-1"
             aria-label={filters.country === "us" ? "State" : "Region"}
           >
             <option value="">
@@ -249,7 +262,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
         <select
           value={filters.jobType}
           onChange={(event) => setFilters({ ...filters, jobType: event.target.value })}
-          className="h-11 rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50"
+          className="h-11 w-full rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50 sm:min-w-40 sm:flex-1"
           aria-label="Job type"
         >
           <option value="">All job types</option>
@@ -260,7 +273,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
         <select
           value={filters.workplaceType}
           onChange={(event) => setFilters({ ...filters, workplaceType: event.target.value })}
-          className="h-11 rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50"
+          className="h-11 w-full rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50 sm:min-w-40 sm:flex-1"
           aria-label="Workplace"
         >
           <option value="">Any workplace</option>
@@ -273,7 +286,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
         <select
           value={filters.experienceLevel}
           onChange={(event) => setFilters({ ...filters, experienceLevel: event.target.value })}
-          className="h-11 rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50"
+          className="h-11 w-full rounded-md border border-input bg-white px-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ring/50 sm:min-w-40 sm:flex-1"
           aria-label="Experience level"
         >
           <option value="">Any experience</option>
@@ -283,7 +296,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
             </option>
           ))}
         </select>
-        <Button type="submit" className="h-11 rounded-xl px-5">
+        <Button type="submit" className="h-11 w-full rounded-xl px-5 sm:w-auto sm:min-w-28">
           Search
         </Button>
       </form>
@@ -427,11 +440,11 @@ function JobCard({
     </>
   );
   return (
-    <article className="group rounded-2xl bg-white ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5">
+    <article className="group min-w-0 overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5">
       <Link href={"/jobs/" + job.id} className="flex items-start gap-4 p-5">{content}</Link>
       <div className="flex justify-end border-t border-slate-100 px-5 py-3">
         {!canManage ? (
-          <Button asChild><Link href={"/jobs/" + job.id}>View job details</Link></Button>
+          <Button asChild className="w-full sm:w-auto"><Link href={"/jobs/" + job.id}>View job details</Link></Button>
         ) : null}
       </div>
       {canManage && (
@@ -453,6 +466,7 @@ function CreateJobPanel({ job, onClose }: { job: Job | null; onClose: () => void
     description: job?.description ?? "",
     requirements: job?.requirements ?? "",
     location: job?.location ?? "",
+    country_code: job?.country_code ?? "us",
     job_type: job?.job_type ?? ("full-time" as JobType),
     workplace_type: job?.workplace_type ?? ("on-site" as WorkplaceType),
     salary_min: job?.salary_min?.toString() ?? "",
@@ -501,6 +515,16 @@ function CreateJobPanel({ job, onClose }: { job: Job | null; onClose: () => void
           placeholder="Job title"
           className="h-11"
         />
+        <select
+          value={form.country_code}
+          onChange={(event) => setForm({ ...form, country_code: event.target.value })}
+          className="h-11 rounded-md border border-input bg-white px-3 text-sm"
+          aria-label="Country"
+        >
+          {countryOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
         <Input
           required
           value={form.location}

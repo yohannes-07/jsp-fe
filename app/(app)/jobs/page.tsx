@@ -29,21 +29,25 @@ export default async function JobsPage({
   }>;
 }) {
   const params = await searchParams;
+  const initialFilters = {
+    q: params.q ?? "",
+    country: /^[a-z]{2}$/i.test(params.country ?? "")
+      ? params.country!.toLowerCase()
+      : "us",
+    location: params.location ?? "",
+    jobType: params.job_type ?? "",
+    workplaceType: params.workplace_type ?? "",
+    experienceLevel: params.experience_level ?? "",
+    searchMode: params.mode === "hybrid" ? ("hybrid" as const) : ("keyword" as const),
+    timeline: params.timeline && validTimelines.has(params.timeline) ? params.timeline : "",
+    page: Math.max(Number(params.page) || 1, 1),
+  };
+  const criteriaKey = JSON.stringify(initialFilters);
+
   return (
     <JobsClient
-      initialFilters={{
-        q: params.q ?? "",
-        country: /^[a-z]{2}$/i.test(params.country ?? "")
-          ? params.country!.toLowerCase()
-          : "us",
-        location: params.location ?? "",
-        jobType: params.job_type ?? "",
-        workplaceType: params.workplace_type ?? "",
-        experienceLevel: params.experience_level ?? "",
-        searchMode: params.mode === "hybrid" ? "hybrid" : "keyword",
-        timeline: params.timeline && validTimelines.has(params.timeline) ? params.timeline : "",
-        page: Math.max(Number(params.page) || 1, 1),
-      }}
+      key={criteriaKey}
+      initialFilters={initialFilters}
     />
   );
 }

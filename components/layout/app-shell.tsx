@@ -67,9 +67,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-18 md:pb-0">
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white">
-        <div className="mx-auto flex h-17 max-w-[92rem] items-center justify-between px-4 sm:px-6">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-slate-50 pb-18 md:pb-0">
+      <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white">
+        <div className="mx-auto flex h-17 w-full max-w-[92rem] items-center justify-between px-4 sm:px-6">
           <Link href="/jobs" aria-label="CirWork workspace">
             <Logo />
           </Link>
@@ -96,7 +96,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[92rem] md:grid-cols-[15rem_1fr]">
+      <div className="mx-auto grid w-full max-w-[92rem] md:grid-cols-[15rem_minmax(0,1fr)]">
         <aside className="hidden min-h-[calc(100vh-4.25rem)] border-r border-slate-200 bg-white p-4 md:block">
           <nav aria-label="Workspace navigation" className="space-y-1">
             {nav.map((item) => {
@@ -121,12 +121,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
         </aside>
 
-        <main className="min-w-0 p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="w-full min-w-0 max-w-full overflow-x-hidden p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
 
       <nav
         aria-label="Mobile workspace navigation"
-        className="fixed inset-x-0 bottom-0 z-40 flex justify-around border-t border-slate-200 bg-white px-2 py-2 md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 flex w-full justify-around border-t border-slate-200 bg-white px-2 py-2 md:hidden"
       >
         {nav.slice(0, 4).map((item) => {
           const Icon = item.icon;

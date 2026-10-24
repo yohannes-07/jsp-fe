@@ -64,9 +64,9 @@ export function AiQueryInput({
   };
 
   return (
-    <div className={className}>
+    <div className={cn("w-full min-w-0", className)}>
       {/* AI panel — visually distinct from the keyword search form below */}
-      <div className="rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-px shadow-lg shadow-blue-900/20">
+      <div className="w-full min-w-0 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-px shadow-lg shadow-blue-900/20">
         <div className="rounded-[15px] bg-gradient-to-br from-blue-950 to-indigo-950 px-5 py-4">
           {/* Header label */}
           <div className="mb-3 flex items-center gap-2">

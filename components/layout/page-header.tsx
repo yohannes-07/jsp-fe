@@ -10,8 +10,8 @@ export function PageHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-      <div className="max-w-2xl">
+    <header className="flex w-full min-w-0 flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0 max-w-2xl">
         {eyebrow && (
           <p className="text-xs font-bold tracking-[0.14em] text-blue-600 uppercase">
             {eyebrow}
