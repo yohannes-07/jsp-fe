@@ -2,12 +2,13 @@ import type { AuthResponse } from "@/lib/types";
 
 
 const API_BASE_URL =
-  (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1").replace(
+  (process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1").replace(
     /\/$/,
     "",
   );
 
 let accessToken: string | null = null;
+let refreshPromise: Promise<boolean> | null = null;
 
 export class ApiError extends Error {
   constructor(
@@ -33,7 +34,7 @@ async function parseError(response: Response): Promise<string> {
   return response.statusText || "Request failed";
 }
 
-async function refreshAccessToken(): Promise<boolean> {
+async function performTokenRefresh(): Promise<boolean> {
   const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
     method: "POST",
     credentials: "include",
@@ -48,6 +49,17 @@ async function refreshAccessToken(): Promise<boolean> {
     window.dispatchEvent(new CustomEvent("jsp:session-refreshed", { detail: session }));
   }
   return true;
+}
+
+function refreshAccessToken(): Promise<boolean> {
+  // Refresh tokens are rotated after every use. Share one in-flight refresh
+  // across callers so parallel 401 responses cannot reuse and revoke a token.
+  if (!refreshPromise) {
+    refreshPromise = performTokenRefresh().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
 }
 
 export async function apiRequest<T>(
