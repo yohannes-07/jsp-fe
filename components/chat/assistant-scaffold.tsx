@@ -28,7 +28,7 @@ export function AssistantScaffold({
           </span>
           <h2 className="mt-6 text-xl font-bold text-slate-950">Your conversation</h2>
           <p className="mt-2 max-w-lg text-sm leading-6 text-slate-600">
-            Your conversations and personalized guidance will stay together here.
+            Describe the opportunity you want and CirWork will turn it into a personalized hybrid job search.
           </p>
           {actionHref && actionLabel && (
             <Button asChild className="mt-6 h-11 rounded-xl">
@@ -42,15 +42,17 @@ export function AssistantScaffold({
         <aside className="rounded-2xl bg-slate-950 p-6 text-white sm:p-8">
           <div className="flex items-center gap-2 text-sm font-semibold text-blue-300">
             <Sparkles aria-hidden="true" className="size-4" />
-            Questions to explore
+            Searches to explore
           </div>
           <ul className="mt-6 space-y-3">
             {examples.map((example) => (
-              <li
-                key={example}
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm leading-6 text-slate-200"
-              >
-                {example}
+              <li key={example}>
+                <Link
+                  href={`/jobs?q=${encodeURIComponent(example)}&mode=hybrid&page=1`}
+                  className="block rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm leading-6 text-slate-200 transition hover:bg-white/10"
+                >
+                  {example}
+                </Link>
               </li>
             ))}
           </ul>

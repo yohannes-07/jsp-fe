@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Bot, Loader2, Send, Sparkles, User } from "lucide-react";
+import { ArrowRight, Bot, Clock3, Loader2, Plus, RotateCcw, Send, Sparkles, User } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,17 @@ export function AssistantChat({
   actionHref?: string;
   actionLabel?: string;
 }) {
-  const { messages, isLoading, sendMessage } = useAssistantChat(assistantPath);
+  const {
+    messages,
+    isLoading,
+    isHistoryLoading,
+    conversations,
+    error,
+    sendMessage,
+    retry,
+    newConversation,
+    selectConversation,
+  } = useAssistantChat(assistantPath);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -55,7 +65,12 @@ export function AssistantChat({
       <div className="mt-8 grid min-h-0 flex-1 gap-5 lg:grid-cols-[1fr_0.75fr]">
         <section className="flex min-h-0 flex-col rounded-2xl bg-white ring-1 ring-slate-200">
           <div className="flex-1 overflow-y-auto p-6 sm:p-8">
-            {messages.length === 0 ? (
+            {isHistoryLoading && messages.length === 0 && (
+              <div className="grid h-full place-items-center text-sm text-slate-500">
+                <span className="inline-flex items-center gap-2"><Loader2 className="size-4 animate-spin" />Loading your conversation…</span>
+              </div>
+            )}
+            {!isHistoryLoading && messages.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center text-center">
                 <span className="grid size-12 place-items-center rounded-2xl bg-blue-50 text-blue-700">
                   <Bot aria-hidden="true" className="size-5" />
@@ -133,6 +148,30 @@ export function AssistantChat({
                           </div>
                         </div>
                       )}
+                      {message.retrieved_context?.relevant_jobs && message.retrieved_context.relevant_jobs.length > 0 && (
+                        <div className="mt-4 space-y-2">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-blue-800">Relevant opportunities</p>
+                          {message.retrieved_context.relevant_jobs.slice(0, 4).map((job) => (
+                            <Link key={job.id} href={`/jobs/${job.id}`} className="block rounded-lg border border-blue-200 bg-white p-3 transition hover:border-blue-400">
+                              <span className="font-semibold text-slate-900">{job.title}</span>
+                              <span className="mt-1 block text-xs text-slate-500">{job.location} · {job.workplace_type}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                      {message.retrieved_context?.candidates && message.retrieved_context.candidates.length > 0 && (
+                        <div className="mt-4 space-y-2">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-blue-800">Matching candidates</p>
+                          {message.retrieved_context.candidates.slice(0, 5).map((candidate) => (
+                            <div key={candidate.resume_id} className="rounded-lg border border-blue-200 bg-white p-3">
+                              <span className="font-semibold text-slate-900">{candidate.full_name}</span>
+                              <span className="mt-1 block text-xs text-slate-500">{candidate.experience_level ?? "Experience not specified"} · {candidate.location ?? "Location not specified"}</span>
+                              <span className="mt-1 block text-xs text-slate-600">{candidate.skills.slice(0, 5).join(", ") || "No skills listed"}</span>
+                            </div>
+                          ))}
+                          <Button asChild variant="outline" size="sm"><Link href="/resumes">Open candidate search</Link></Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -148,6 +187,12 @@ export function AssistantChat({
                   </div>
                 )}
                 <div ref={messagesEndRef} />
+              </div>
+            )}
+            {error && (
+              <div role="alert" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+                <span>{error}</span>
+                <Button type="button" size="sm" variant="outline" onClick={retry} disabled={isLoading}><RotateCcw className="size-3.5" />Retry</Button>
               </div>
             )}
           </div>
@@ -179,6 +224,17 @@ export function AssistantChat({
         </section>
 
         <aside className="flex flex-col rounded-2xl bg-slate-950 p-6 text-white sm:p-8">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-blue-300"><Clock3 className="size-4" />Recent conversations</div>
+            <button type="button" onClick={newConversation} className="rounded-lg p-1.5 text-blue-200 hover:bg-white/10 hover:text-white" aria-label="Start a new conversation"><Plus className="size-4" /></button>
+          </div>
+          {conversations.length > 0 ? (
+            <div className="mt-3 max-h-40 space-y-2 overflow-y-auto border-b border-white/10 pb-5">
+              {conversations.slice(0, 5).map((conversation) => (
+                <button key={conversation.id} type="button" onClick={() => void selectConversation(conversation.id)} className="block w-full truncate rounded-lg bg-white/5 px-3 py-2 text-left text-xs text-slate-300 hover:bg-white/10">{conversation.preview || "New conversation"}</button>
+              ))}
+            </div>
+          ) : <p className="mt-3 border-b border-white/10 pb-5 text-xs text-slate-400">Your saved conversations will appear here.</p>}
           <div className="flex items-center gap-2 text-sm font-semibold text-blue-300">
             <Sparkles aria-hidden="true" className="size-4" />
             Questions to explore

@@ -31,6 +31,7 @@ export function ApplicationForm({ job }: { job: Job }) {
           cover_note: coverNote.trim() || null,
         }),
       }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["job-recommendations"] }),
   });
   const upload = useMutation({
     mutationFn: (file: File) => {

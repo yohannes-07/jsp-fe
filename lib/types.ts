@@ -159,6 +159,32 @@ export type TalentWorkspace = {
   create_value: TalentAction[];
 };
 
+export type JobPreferences = {
+  target_roles: string[];
+  job_types: JobType[];
+  workplace_types: WorkplaceType[];
+  preferred_country: string;
+  preferred_locations: string[];
+  salary_min: number | null;
+  salary_max: number | null;
+  career_goals: string;
+  support_needs: string[];
+};
+
+export type RecommendedJob = {
+  job: Job;
+  score: number;
+  reasons: string[];
+};
+
+export type JobRecommendations = {
+  items: RecommendedJob[];
+  generated_at: string;
+  cached: boolean;
+  semantic_available: boolean;
+  personalization_signals: string[];
+};
+
 export type MessageRead = {
   id: string;
   role: "user" | "assistant";
@@ -166,12 +192,32 @@ export type MessageRead = {
   created_at: string;
   retrieved_context?: {
     resources?: Array<{
+      id?: string;
       title: string;
       category: string;
       description: string;
       location: string | null;
+      country_code?: string | null;
       source_url: string;
     }>;
+    relevant_jobs?: Array<{
+      id: string;
+      title: string;
+      location: string;
+      job_type: string;
+      workplace_type: string;
+      skills: string[];
+    }>;
+    candidates?: Array<{
+      resume_id: string;
+      user_id: string;
+      full_name: string;
+      skills: string[];
+      experience_level: string | null;
+      location: string | null;
+      score: number;
+    }>;
+    personalization?: { history_summary: string };
     [key: string]: unknown;
   };
 };
@@ -179,4 +225,17 @@ export type MessageRead = {
 export type AssistantChatResponse = {
   conversation_id: string;
   message: MessageRead;
+};
+
+export type ConversationSummary = {
+  id: string;
+  assistant_type: "resume" | "career" | "recruiter" | "support";
+  created_at: string;
+  updated_at: string;
+  preview: string | null;
+};
+
+export type ConversationDetail = {
+  conversation: ConversationSummary;
+  messages: MessageRead[];
 };

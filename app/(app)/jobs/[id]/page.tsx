@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import type { Job } from "@/lib/types";
 
 import { JobApplicationAction } from "./job-application-action";
+import { JobViewTracker } from "./job-view-tracker";
 import { RecruiterApplications } from "./recruiter-applications";
 
 const experienceLevelLabels: Record<string, string> = {
@@ -47,6 +48,7 @@ export default async function JobDetailPage({
 
   return (
     <div className="mx-auto max-w-4xl">
+      <JobViewTracker jobId={job.id} />
       <Link
         href="/jobs"
         className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-blue-700"

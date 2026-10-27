@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileText, Mail, MapPin, Phone, Users } from "lucide-react";
 
 import { apiRequest } from "@/lib/api-client";
@@ -10,10 +10,19 @@ import type { Job, JobApplicant } from "@/lib/types";
 export function RecruiterApplications({ job }: { job: Job }) {
   const user = useAuthStore((state) => state.user);
   const ownsJob = user?.role === "recruiter" && user.id === job.recruiter_id;
+  const queryClient = useQueryClient();
   const applications = useQuery({
     queryKey: ["job-applications", job.id],
     queryFn: () => apiRequest<JobApplicant[]>(`/jobs/${job.id}/applications`),
     enabled: ownsJob,
+  });
+  const updateStatus = useMutation({
+    mutationFn: ({ applicationId, status }: { applicationId: string; status: "reviewing" | "shortlisted" | "rejected" }) =>
+      apiRequest(`/jobs/${job.id}/applications/${applicationId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["job-applications", job.id] }),
   });
 
   if (!ownsJob) return null;
@@ -56,6 +65,21 @@ export function RecruiterApplications({ job }: { job: Job }) {
                 {new Date(applicant.created_at).toLocaleDateString()}
               </time>
             </div>
+            <label className="mt-4 block max-w-xs text-xs font-semibold text-slate-600">
+              Application stage
+              <select
+                value={applicant.status}
+                disabled={updateStatus.isPending || applicant.status === "withdrawn"}
+                onChange={(event) => updateStatus.mutate({ applicationId: applicant.id, status: event.target.value as "reviewing" | "shortlisted" | "rejected" })}
+                className="mt-1 h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm"
+              >
+                <option value="submitted" disabled>Submitted</option>
+                <option value="reviewing">Reviewing</option>
+                <option value="shortlisted">Shortlisted</option>
+                <option value="rejected">Rejected</option>
+                <option value="withdrawn" disabled>Withdrawn</option>
+              </select>
+            </label>
             <div className="mt-4 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
               <span className="inline-flex items-center gap-2"><Mail aria-hidden="true" className="size-4 text-blue-600" />{applicant.email}</span>
               <span className="inline-flex items-center gap-2"><Phone aria-hidden="true" className="size-4 text-blue-600" />{applicant.phone_number}</span>

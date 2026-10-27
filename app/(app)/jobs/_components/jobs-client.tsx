@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,6 +19,7 @@ import {
 import { useAuthStore } from "@/lib/store/auth-store";
 import type {
   Job,
+  JobRecommendations,
   JobExperienceLevel,
   JobList,
   JobType,
@@ -69,19 +70,6 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const queryClient = useQueryClient();
   const regionOptions = regionOptionsForCountry(filters.country);
-  useEffect(() => {
-    setFilters(initialFilters);
-  }, [
-    initialFilters.country,
-    initialFilters.experienceLevel,
-    initialFilters.jobType,
-    initialFilters.location,
-    initialFilters.page,
-    initialFilters.q,
-    initialFilters.searchMode,
-    initialFilters.timeline,
-    initialFilters.workplaceType,
-  ]);
   const targetRoles = Array.isArray(user?.preferences.target_roles)
     ? user.preferences.target_roles.filter(
         (value): value is string => typeof value === "string" && Boolean(value.trim()),
@@ -121,6 +109,15 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
     queryKey: ["jobs", queryString.toString()],
     queryFn: () =>
       apiRequest<JobList>("/search/jobs" + (queryString.size ? "?" + queryString : "")),
+  });
+  const recommendationsQuery = useQuery({
+    queryKey: ["job-recommendations", user?.id],
+    queryFn: () => apiRequest<JobRecommendations>("/recommendations/jobs?limit=6"),
+    enabled:
+      user?.role === "job_seeker" &&
+      !initialFilters.q &&
+      initialFilters.page === 1,
+    staleTime: 5 * 60 * 1000,
   });
   const externalQueryString = new URLSearchParams();
   if (effectiveQuery) externalQueryString.set("q", effectiveQuery);
@@ -168,6 +165,19 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
     if (filters.workplaceType) params.set("workplace_type", filters.workplaceType);
     if (filters.experienceLevel) params.set("experience_level", filters.experienceLevel);
     params.set("page", "1");
+    if (user?.role === "job_seeker" && filters.q.trim()) {
+      void apiRequest<void>("/recommendations/events", {
+        method: "POST",
+        body: JSON.stringify({
+          event_type: "search",
+          query: filters.q.trim(),
+          country_code: filters.country,
+          location: filters.location.trim() || null,
+        }),
+      })
+        .then(() => queryClient.invalidateQueries({ queryKey: ["job-recommendations"] }))
+        .catch(() => undefined);
+    }
     router.push("/jobs" + (params.size ? "?" + params : ""));
   };
 
@@ -301,6 +311,51 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
         </Button>
       </form>
 
+      {user?.role === "job_seeker" && !initialFilters.q && initialFilters.page === 1 && (
+        <section className="rounded-2xl bg-gradient-to-br from-blue-950 to-blue-800 p-5 text-white sm:p-6">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold tracking-wider text-blue-200 uppercase">
+                Personalized for you
+              </p>
+              <h2 className="mt-1 text-xl font-bold">Recommended opportunities</h2>
+              <p className="mt-2 max-w-2xl text-sm text-blue-100">
+                Based on your profile, preferences, searches, and application activity.
+              </p>
+            </div>
+            <Link href="/profile" className="text-sm font-semibold text-blue-100 hover:text-white">
+              Refine preferences →
+            </Link>
+          </div>
+          {recommendationsQuery.isLoading && (
+            <div className="mt-5 flex items-center gap-2 text-sm text-blue-100">
+              <Loader2 className="size-4 animate-spin" /> Building your recommendations…
+            </div>
+          )}
+          {recommendationsQuery.data?.items.length === 0 && (
+            <p className="mt-5 rounded-xl bg-white/10 px-4 py-3 text-sm text-blue-50">
+              Add target roles and skills to your profile to improve your recommendations.
+            </p>
+          )}
+          {recommendationsQuery.data && recommendationsQuery.data.items.length > 0 && (
+            <div className="mt-5 grid gap-4 xl:grid-cols-2">
+              {recommendationsQuery.data.items.map((item) => (
+                <JobCard
+                  key={item.job.id}
+                  job={item.job}
+                  recommendationReasons={item.reasons}
+                  canManage={false}
+                  busy={false}
+                  onEdit={() => undefined}
+                  onClose={() => undefined}
+                  onDelete={() => undefined}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
       {jobsQuery.isLoading && <JobLoadingGrid />}
       {jobsQuery.isError && (
         <StatePanel
@@ -391,6 +446,7 @@ export function JobsClient({ initialFilters }: { initialFilters: JobFilters }) {
 
 function JobCard({
   job,
+  recommendationReasons,
   canManage,
   busy,
   onEdit,
@@ -398,6 +454,7 @@ function JobCard({
   onDelete,
 }: {
   job: Job;
+  recommendationReasons?: string[];
   canManage: boolean;
   busy: boolean;
   onEdit: () => void;
@@ -418,6 +475,11 @@ function JobCard({
         <BriefcaseBusiness aria-hidden="true" className="size-5" />
       </span>
       <div className="min-w-0 flex-1">
+        {recommendationReasons && recommendationReasons.length > 0 && (
+          <p className="mb-2 text-xs font-semibold text-blue-700">
+            {recommendationReasons.join(" · ")}
+          </p>
+        )}
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="font-bold text-slate-950 group-hover:text-blue-700">{job.title}</h2>
