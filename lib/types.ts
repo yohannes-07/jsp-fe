@@ -229,7 +229,12 @@ export type AssistantChatResponse = {
 
 export type ConversationSummary = {
   id: string;
-  assistant_type: "resume" | "career" | "recruiter" | "support";
+  assistant_type:
+    | "resume"
+    | "career"
+    | "candidate-review"
+    | "support"
+    | "workforce-strategy";
   created_at: string;
   updated_at: string;
   preview: string | null;

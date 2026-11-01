@@ -31,7 +31,7 @@ const recruiterNav = [
   { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness },
   { href: "/resumes", label: "Find candidates", icon: Search },
   { href: "/talent", label: "Talent strategy", icon: Target },
-  { href: "/assistants/recruiter", label: "Recruiter assistant", icon: Compass },
+  { href: "/assistants/recruiter", label: "AI assistants", icon: Compass },
   { href: "/profile", label: "Company profile", icon: UserRound },
 ];
 

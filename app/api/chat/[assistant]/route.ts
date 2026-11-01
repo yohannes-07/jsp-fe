@@ -7,11 +7,11 @@ const API_BASE_URL =
 
 const allowedAssistants = new Set([
   "query",
-  "job-discovery",
   "resume",
   "career",
-  "recruiter",
+  "candidate-review",
   "support",
+  "workforce-strategy",
 ]);
 
 export async function POST(

@@ -19,7 +19,12 @@ export function AssistantChat({
   name: string;
   description: string;
   examples: string[];
-  assistantPath: "resume" | "career" | "recruiter" | "support";
+  assistantPath:
+    | "resume"
+    | "career"
+    | "candidate-review"
+    | "support"
+    | "workforce-strategy";
   actionHref?: string;
   actionLabel?: string;
 }) {

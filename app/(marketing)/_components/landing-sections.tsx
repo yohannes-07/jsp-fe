@@ -603,7 +603,7 @@ export function AiShowcase() {
 
           <Button asChild variant="outline" className="mt-9 h-11 rounded-xl px-5">
             <Link href="/assistants/job-discovery">
-              Explore the job-discovery assistant
+              Explore job-seeker assistants
               <ArrowRight aria-hidden="true" className="size-4" />
             </Link>
           </Button>
@@ -834,7 +834,7 @@ export function EmployerSection() {
             <div className="mt-4 rounded-xl bg-slate-50 p-4">
               <p className="flex items-center gap-2 text-sm font-bold">
                 <Sparkles aria-hidden="true" className="size-4 text-blue-600" />
-                Recruiter assistant insight
+                Candidate Review insight
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 The leading profiles combine cross-functional delivery with the process-improvement experience this role requires.
