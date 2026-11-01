@@ -11,7 +11,7 @@ const allowedAssistants = new Set([
   "career",
   "candidate-review",
   "support",
-  "workforce-strategy",
+  "hiring-retention",
 ]);
 
 export async function POST(

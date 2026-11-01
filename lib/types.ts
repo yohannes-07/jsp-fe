@@ -217,6 +217,10 @@ export type MessageRead = {
       location: string | null;
       score: number;
     }>;
+    web_sources?: Array<{
+      title: string;
+      url: string;
+    }>;
     personalization?: { history_summary: string };
     [key: string]: unknown;
   };
@@ -234,7 +238,7 @@ export type ConversationSummary = {
     | "career"
     | "candidate-review"
     | "support"
-    | "workforce-strategy";
+    | "hiring-retention";
   created_at: string;
   updated_at: string;
   preview: string | null;

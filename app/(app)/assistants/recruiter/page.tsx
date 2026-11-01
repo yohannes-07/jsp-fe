@@ -13,8 +13,8 @@ const assistants = [
     icon: ScanSearch,
   },
   {
-    href: "/assistants/workforce-strategy",
-    title: "Workforce Value Strategy",
+    href: "/assistants/hiring-retention",
+    title: "Hiring and Retention",
     description:
       "Turn worker support and talent practices into a measurable workforce plan.",
     details:
@@ -29,7 +29,7 @@ export default function RecruiterAssistantsPage() {
       <PageHeader
         eyebrow="Recruiter AI"
         title="Focused help for better talent decisions"
-        description="Choose the assistant that matches your decision. Candidate Review handles applicant evidence; Workforce Value Strategy handles support, retention, and business outcomes."
+        description="Choose the assistant that matches your decision. Candidate Review handles applicant evidence; Hiring and Retention helps improve recruiting, worker support, and retention."
       />
       <div className="grid gap-5 md:grid-cols-2">
         {assistants.map((assistant) => {

@@ -24,7 +24,7 @@ export function AssistantChat({
     | "career"
     | "candidate-review"
     | "support"
-    | "workforce-strategy";
+    | "hiring-retention";
   actionHref?: string;
   actionLabel?: string;
 }) {
@@ -123,6 +123,26 @@ export function AssistantChat({
                       }`}
                     >
                       <div className="whitespace-pre-wrap">{message.content}</div>
+
+                      {message.retrieved_context?.web_sources && message.retrieved_context.web_sources.length > 0 && (
+                        <div className="mt-3 space-y-2 border-t border-blue-200 pt-3">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-blue-800">Sources</p>
+                          <ul className="space-y-1">
+                            {message.retrieved_context.web_sources.map((source) => (
+                              <li key={source.url}>
+                                <a
+                                  href={source.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-xs font-medium text-blue-700 underline decoration-blue-300 underline-offset-2 hover:text-blue-900"
+                                >
+                                  {source.title}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                       
                       {/* Render support resources if present in context */}
                       {message.retrieved_context?.resources && message.retrieved_context.resources.length > 0 && (
